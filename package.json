@@ -14,7 +14,8 @@
     "compile:watch": "tsc -w",
     "lint": "tslint --project . --format stylish",
     "prepublish": "yarn compile:clean && yarn compile",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "test": "echo 'not yet!'"
   },
   "release": {
     "debug": true,
