@@ -1,7 +1,7 @@
 # serverless-es-logs
 
 [![serverless][sls-image]][sls-url]
-[![Renovate][renovate-img]][renovate-url]
+[![Renovate][renovate-image]][renovate-url]
 
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
