@@ -12,8 +12,11 @@
     "build": "tsc",
     "lint": "tslint --project . --format stylish"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "^4.17.10"
+  },
   "devDependencies": {
+    "@types/lodash": "^4.14.115",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
   }

@@ -2,7 +2,6 @@
   "compileOnSave": true,
   "compilerOptions": {    
     "strict": true,
-    "noUnusedLocals": true,
     "outDir": "./dist",
     "declaration": true,
     "rootDir": "src",    
