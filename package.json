@@ -9,8 +9,12 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "lint": "tslint --project . --format stylish"
+    "compile": "tsc",
+    "compile:clean": "rimraf dist",
+    "compile:watch": "tsc -w",
+    "lint": "tslint --project . --format stylish",
+    "prepublish": "yarn compile:clean && yarn compile",
+    "release": "semantic-release"
   },
   "release": {
     "debug": true,
@@ -38,6 +42,7 @@
     "@semantic-release/git": "7.0.1",
     "@semantic-release/github": "5.0.1",
     "@types/lodash": "4.14.115",
+    "rimraf": "^2.6.2",
     "semantic-release": "15.8.1",
     "tslint": "5.11.0",
     "typescript": "2.9.2"
