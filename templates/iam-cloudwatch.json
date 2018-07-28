@@ -1,0 +1,48 @@
+{
+  "ServerlessEsLogsCWIAMRole": {
+    "Type": "AWS::IAM::Role",
+    "DependsOn": [
+      "ServerlessEsLogsFirehose"
+    ],
+    "Properties": {
+      "AssumeRolePolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "logs.amazonaws.com"
+              ]
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }
+        ]
+      },
+      "Policies": [
+        {
+          "PolicyName": "logs-to-firehose-policy",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "firehose:*"
+                ],
+                "Resource": {
+                  "Fn::GetAtt": [
+                    "ServerlessEsLogsFirehose",
+                    "Arn"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

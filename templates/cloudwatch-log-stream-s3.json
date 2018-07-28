@@ -1,0 +1,14 @@
+{
+  "ServerlessEsLogsS3LogStream": {
+    "Type" : "AWS::Logs::LogStream",
+    "DependsOn": [
+      "ServerlessEsLogsLogGroup"
+    ],
+    "Properties": {
+      "LogGroupName": {
+        "Ref": "ServerlessEsLogsLogGroup"
+      },
+      "LogStreamName": "S3Delivery"
+    }
+  }
+}

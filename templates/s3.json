@@ -1,0 +1,5 @@
+{
+  "ServerlessEsLogsS3": {
+    "Type": "AWS::S3::Bucket"
+  }
+}

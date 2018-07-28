@@ -1,0 +1,8 @@
+{
+  "ServerlessEsLogsLogGroup": {
+    "Type": "AWS::Logs::LogGroup",
+    "Properties": {
+      "LogGroupName": ""
+    }
+  }
+}

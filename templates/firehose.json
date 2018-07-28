@@ -1,0 +1,80 @@
+{
+  "ServerlessEsLogsFirehose": {
+    "Type": "AWS::KinesisFirehose::DeliveryStream",
+    "DependsOn": [
+      "ServerlessEsLogsS3",
+      "ServerlessEsLogsLogGroup",
+      "ServerlessEsLogsEsLogStream",
+      "ServerlessEsLogsS3LogStream",
+      "ServerlessEsLogsIAMRole"
+    ],
+    "Properties": {
+      "DeliveryStreamName": "",
+      "DeliveryStreamType": "DirectPut",
+      "ElasticsearchDestinationConfiguration": {
+        "RoleARN": {
+          "Fn::GetAtt": [
+            "ServerlessEsLogsIAMRole",
+            "Arn"
+          ]
+        },
+        "DomainARN": "",
+        "IndexName": "serverless-es-logs",
+        "TypeName": "serverless-es-logs",
+        "IndexRotationPeriod": "OneDay",
+        "BufferingHints": {
+          "IntervalInSeconds": 60,
+          "SizeInMBs": 5
+        },
+        "RetryOptions": {
+          "DurationInSeconds": 60
+        },
+        "S3BackupMode": "FailedDocumentsOnly",
+        "S3Configuration": {
+          "RoleARN": {
+            "Fn::GetAtt": [
+              "ServerlessEsLogsIAMRole",
+              "Arn"
+            ]
+          },
+          "BucketARN": {
+            "Fn::GetAtt": [
+              "ServerlessEsLogsS3",
+              "Arn"
+            ]
+          },
+          "BufferingHints": {
+            "IntervalInSeconds": 60,
+            "SizeInMBs": 5
+          },
+          "CompressionFormat": "UNCOMPRESSED",
+          "EncryptionConfiguration": {
+            "NoEncryptionConfig": "NoEncryption"
+          },
+          "CloudWatchLoggingOptions": {
+            "Enabled": true,
+            "LogGroupName": {
+              "Ref": "ServerlessEsLogsLogGroup"
+            },
+            "LogStreamName": {
+              "Ref": "ServerlessEsLogsS3LogStream"
+            }
+          }
+        },
+        "ProcessingConfiguration": {
+          "Enabled": false,
+          "Processors": []
+        },
+        "CloudWatchLoggingOptions": {
+          "Enabled": true,
+          "LogGroupName": {
+            "Ref": "ServerlessEsLogsLogGroup"
+          },
+          "LogStreamName": {
+            "Ref": "ServerlessEsLogsEsLogStream"
+          }
+        }
+      }
+    }
+  }
+}
