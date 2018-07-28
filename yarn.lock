@@ -26,7 +26,7 @@
     node-fetch "^2.1.1"
     url-template "^2.0.8"
 
-"@semantic-release/changelog@^3.0.0":
+"@semantic-release/changelog@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@semantic-release/changelog/-/changelog-3.0.0.tgz#e01514b517e775cea47aef7df5f5685c7aff2bf2"
   dependencies:
@@ -50,7 +50,7 @@
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@semantic-release/error/-/error-2.2.0.tgz#ee9d5a09c9969eade1ec864776aeda5c5cddbbf0"
 
-"@semantic-release/git@^7.0.1":
+"@semantic-release/git@7.0.1":
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/@semantic-release/git/-/git-7.0.1.tgz#18ff915552b022f72ef5c2063d0e85f046ee8be0"
   dependencies:
@@ -65,7 +65,7 @@
     micromatch "^3.1.4"
     p-reduce "^1.0.0"
 
-"@semantic-release/github@^5.0.0", "@semantic-release/github@^5.0.1":
+"@semantic-release/github@5.0.1", "@semantic-release/github@^5.0.0":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.0.1.tgz#7be94947b4a32604ffda8e8f59b70ff5c04bea35"
   dependencies:
@@ -120,7 +120,7 @@
     into-stream "^3.1.0"
     lodash "^4.17.4"
 
-"@types/lodash@^4.14.115":
+"@types/lodash@4.14.115":
   version "4.14.115"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.115.tgz#54d171b2ce12c058742443b5f6754760f701b8f9"
 
@@ -1754,7 +1754,7 @@ safe-regex@^1.1.0:
   dependencies:
     ret "~0.1.10"
 
-semantic-release@^15.8.1:
+semantic-release@15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/semantic-release/-/semantic-release-15.8.1.tgz#b10a919180cce79e756048e7e713a36d6c42a7e7"
   dependencies:
@@ -2064,7 +2064,7 @@ tslib@^1.8.0, tslib@^1.8.1:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.3.tgz#d7e4dd79245d85428c4d7e4822a79917954ca286"
 
-tslint@^5.11.0:
+tslint@5.11.0:
   version "5.11.0"
   resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.11.0.tgz#98f30c02eae3cde7006201e4c33cb08b48581eed"
   dependencies:
@@ -2087,7 +2087,7 @@ tsutils@^2.27.2:
   dependencies:
     tslib "^1.8.1"
 
-typescript@^2.9.2:
+typescript@2.9.2:
   version "2.9.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
 
