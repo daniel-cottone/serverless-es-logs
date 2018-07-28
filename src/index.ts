@@ -1,7 +1,8 @@
 import _ from 'lodash';
 
-import { formatLogGroup, formatFirehose, formatIamFirehoseRole } from './formatters';
+import { formatFirehose, formatIamFirehoseRole, formatLogGroup } from './formatters';
 
+// tslint:disable:no-var-requires
 const cloudwatchLogGroupTemplate = require('../templates/cloudwatch-log-group.json');
 const cloudwatchLogStreamEsTemplate = require('../templates/cloudwatch-log-stream-es.json');
 const cloudwatchLogStreamS3Template = require('../templates/cloudwatch-log-stream-s3.json');
@@ -9,6 +10,7 @@ const firehoseTemplate = require('../templates/firehose.json');
 const iamCloudwatchTemplate = require('../templates/iam-cloudwatch.json');
 const iamFirehoseTemplate = require('../templates/iam-firehose.json');
 const s3Template = require('../templates/s3.json');
+// tslint:enable:no-var-requires
 
 class ServerlessEsLogsPlugin {
   private provider: any;
@@ -45,12 +47,12 @@ class ServerlessEsLogsPlugin {
     const { stage, region } = this.options;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const formatOpts = {
-      service: this.serverless.service.service,
-      stage,
-      region,
       options: {
         ...this.custom.esLogs,
       },
+      region,
+      service: this.serverless.service.service,
+      stage,
     };
 
     // Add cloudwatch subscriptions to existing functions
@@ -73,8 +75,8 @@ class ServerlessEsLogsPlugin {
       ...formatOpts,
       template: firehoseTemplate,
     }));
-  
-    console.log(JSON.stringify(template, null, 2));
+
+    // console.log(JSON.stringify(template, null, 2));
   }
 
   private addCloudwatchSubscriptions(): void {
@@ -87,7 +89,10 @@ class ServerlessEsLogsPlugin {
       const logGroupLogicalId = `${normalizedFunctionName}LogGroup`;
       const logGroupName = template.Resources[logGroupLogicalId].Properties.LogGroupName;
       subscriptionsTemplate[logicalId] = {
-        Type : 'AWS::Logs::SubscriptionFilter',
+        DependsOn: [
+          'ServerlessEsLogsFirehose',
+          'ServerlessEsLogsCWIAMRole',
+        ],
         Properties: {
           DestinationArn: {
             'Fn::GetAtt': [
@@ -104,10 +109,7 @@ class ServerlessEsLogsPlugin {
             ],
           },
         },
-        DependsOn: [
-          'ServerlessEsLogsFirehose',
-          'ServerlessEsLogsCWIAMRole',
-        ],
+        Type : 'AWS::Logs::SubscriptionFilter',
       };
     });
     _.merge(template.Resources, subscriptionsTemplate);
