@@ -32,6 +32,11 @@ export function formatIamFirehoseRole(opts: IFormatterOpts): any {
     service,
     'es-logs-cw-policy',
   ];
+  properties.Policies[3].PolicyName['Fn::Join'][1] = [
+    stage,
+    service,
+    'es-logs-lambda-policy',
+  ];
   properties.RoleName['Fn::Join'][1] = [
     service,
     stage,

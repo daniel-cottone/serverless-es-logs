@@ -6,7 +6,8 @@
       "ServerlessEsLogsLogGroup",
       "ServerlessEsLogsEsLogStream",
       "ServerlessEsLogsS3LogStream",
-      "ServerlessEsLogsIAMRole"
+      "ServerlessEsLogsIAMRole",
+      "EsLogsProcesserLambdaFunction"
     ],
     "Properties": {
       "DeliveryStreamName": "",
@@ -24,7 +25,7 @@
         "IndexRotationPeriod": "OneDay",
         "BufferingHints": {
           "IntervalInSeconds": 60,
-          "SizeInMBs": 5
+          "SizeInMBs": 3
         },
         "RetryOptions": {
           "DurationInSeconds": 60
@@ -45,7 +46,7 @@
           },
           "BufferingHints": {
             "IntervalInSeconds": 60,
-            "SizeInMBs": 5
+            "SizeInMBs": 3
           },
           "CompressionFormat": "UNCOMPRESSED",
           "EncryptionConfiguration": {
@@ -62,8 +63,44 @@
           }
         },
         "ProcessingConfiguration": {
-          "Enabled": false,
-          "Processors": []
+          "Enabled": true,
+          "Processors": [
+            {
+              "Type": "Lambda",
+              "Parameters": [
+                {
+                  "ParameterName": "LambdaArn",
+                  "ParameterValue": {
+                    "Fn::GetAtt": [
+                      "EsLogsProcesserLambdaFunction",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "ParameterName": "NumberOfRetries",
+                  "ParameterValue": "3"
+                },
+                {
+                  "ParameterName": "RoleArn",
+                  "ParameterValue": {
+                    "Fn::GetAtt": [
+                      "ServerlessEsLogsIAMRole",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "ParameterName": "BufferSizeInMBs",
+                  "ParameterValue": "3"
+                },
+                {
+                  "ParameterName": "BufferIntervalInSeconds",
+                  "ParameterValue": "60"
+                }
+              ]
+            }
+          ]
         },
         "CloudWatchLoggingOptions": {
           "Enabled": true,

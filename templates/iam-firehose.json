@@ -134,7 +134,7 @@
                 "Resource": [
                   {
                     "Fn::GetAtt": [
-                      "ServerlessEsLogsLogGroup",
+                      "EsLogsProcesserLambdaFunction",
                       "Arn"
                     ]
                   }

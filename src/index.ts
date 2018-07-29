@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import fs from 'fs-extra';
+import path from 'path';
 
 import { formatFirehose, formatIamFirehoseRole, formatLogGroup } from './formatters';
 
@@ -8,6 +10,7 @@ const cloudwatchLogStreamEsTemplate = require('../templates/cloudwatch-log-strea
 const cloudwatchLogStreamS3Template = require('../templates/cloudwatch-log-stream-s3.json');
 const firehoseTemplate = require('../templates/firehose.json');
 const iamCloudwatchTemplate = require('../templates/iam-cloudwatch.json');
+const iamLambdaTemplate = require('../templates/iam-lambda.json');
 const iamFirehoseTemplate = require('../templates/iam-firehose.json');
 const s3Template = require('../templates/s3.json');
 // tslint:enable:no-var-requires
@@ -18,6 +21,8 @@ class ServerlessEsLogsPlugin {
   private serverless: any;
   private options: { [name: string]: any };
   private custom: { [name: string]: any };
+  private logProcesserDir: string = '_es-logs';
+  private logProcesserName: string = 'esLogsProcesser';
 
   constructor(serverless: any, options: { [name: string]: any }) {
     this.serverless = serverless;
@@ -26,13 +31,19 @@ class ServerlessEsLogsPlugin {
     this.custom = serverless.service.custom || {};
     this.hooks = {
       'after:package:initialize': this.afterPackageInitialize.bind(this),
-      'aws:package:finalize:mergeCustomProviderResources': this.mergeResources.bind(this),
+      'after:package:createDeploymentArtifacts': this.afterPackageCreateDeploymentArtifacts.bind(this),
+      'aws:package:finalize:mergeCustomProviderResources': this.mergeCustomProviderResources.bind(this),
     };
+  }
+
+  private afterPackageCreateDeploymentArtifacts(): void {
+    this.serverless.cli.log('ServerlessEsLogsPlugin.afterPackageCreateDeploymentArtifacts()');
+    this.cleanupFiles();
   }
 
   private afterPackageInitialize(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.afterPackageInitialize()');
-    this.options.stage  = this.options.stage
+    this.options.stage = this.options.stage
       || this.serverless.service.provider.stage
       || (this.serverless.service.defaults && this.serverless.service.defaults.stage)
       || 'dev';
@@ -40,10 +51,14 @@ class ServerlessEsLogsPlugin {
       || this.serverless.service.provider.region
       || (this.serverless.service.defaults && this.serverless.service.defaults.region)
       || 'us-east-1';
+    
+    // Add log processing lambda
+    // TODO: Find the right lifecycle method for this
+    this.addLogProcesser();
   }
 
-  private mergeResources(): void {
-    this.serverless.cli.log('ServerlessEsLogsPlugin.mergeResources()');
+  private mergeCustomProviderResources(): void {
+    this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
     const { stage, region } = this.options;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const formatOpts = {
@@ -55,10 +70,10 @@ class ServerlessEsLogsPlugin {
       stage,
     };
 
-    // Add cloudwatch subscriptions to existing functions
+    // Add cloudwatch subscriptions to firehose for functions' log groups
     this.addCloudwatchSubscriptions();
 
-    // Add resources for firehose -> elasticsearch
+    // Add custom resources for firehose -> elasticsearch
     _.merge(template.Resources, s3Template);
     _.merge(template.Resources, formatLogGroup({
       ...formatOpts,
@@ -67,6 +82,7 @@ class ServerlessEsLogsPlugin {
     _.merge(template.Resources, cloudwatchLogStreamEsTemplate);
     _.merge(template.Resources, cloudwatchLogStreamS3Template);
     _.merge(template.Resources, iamCloudwatchTemplate);
+    _.merge(template.Resources, iamLambdaTemplate);
     _.merge(template.Resources, formatIamFirehoseRole({
       ...formatOpts,
       template: iamFirehoseTemplate,
@@ -76,7 +92,8 @@ class ServerlessEsLogsPlugin {
       template: firehoseTemplate,
     }));
 
-    // console.log(JSON.stringify(template, null, 2));
+    // Patch log processer lambda role
+    this.patchLogProcesserRole();
   }
 
   private addCloudwatchSubscriptions(): void {
@@ -84,6 +101,10 @@ class ServerlessEsLogsPlugin {
     const subscriptionsTemplate: { [name: string]: any } = {};
     const functions = this.serverless.service.getAllFunctions();
     functions.forEach((name: string) => {
+      if (name === this.logProcesserName) {
+        return;
+      }
+
       const normalizedFunctionName = this.provider.naming.getNormalizedFunctionName(name);
       const logicalId = `${normalizedFunctionName}SubscriptionFilter`;
       const logGroupLogicalId = `${normalizedFunctionName}LogGroup`;
@@ -113,6 +134,47 @@ class ServerlessEsLogsPlugin {
       };
     });
     _.merge(template.Resources, subscriptionsTemplate);
+  }
+
+  private addLogProcesser(): void {
+    const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
+    const filePath = path.join(dirPath, 'index.js');
+    const handler = `${this.logProcesserDir}/index.handler`;
+    const name = `${this.serverless.service.service}-${this.options.stage}-es-logs-plugin`;
+    fs.ensureDirSync(dirPath);
+    fs.copySync(path.resolve(__dirname, '../templates/logProcesser.js'), filePath);
+    this.serverless.service.functions[this.logProcesserName] = {
+      description: 'Serverless ES Logs Plugin',
+      handler,
+      events: [],
+      memorySize: 512,
+      name,
+      runtime: 'nodejs8.10',
+      package: {
+        individually: true,
+        exclude: ['**'],
+        include: [this.logProcesserDir + '/**'],
+      },
+      timeout: 60,
+    };
+  }
+
+  private patchLogProcesserRole(): void {
+    const normalizedFunctionName = this.provider.naming.getNormalizedFunctionName(this.logProcesserName);
+    const templateKey = `${normalizedFunctionName}LambdaFunction`;
+    const template = this.serverless.service.provider.compiledCloudFormationTemplate;
+    template.Resources[templateKey].DependsOn.push('ServerlessEsLogsLambdaIAMRole');
+    template.Resources[templateKey].Properties.Role = {
+      'Fn::GetAtt': [
+        'ServerlessEsLogsLambdaIAMRole',
+        'Arn',
+      ],
+    };
+  }
+
+  private cleanupFiles(): void {
+    const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
+    fs.removeSync(dirPath);
   }
 }
 
