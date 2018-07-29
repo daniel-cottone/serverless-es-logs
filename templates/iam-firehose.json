@@ -3,7 +3,8 @@
     "Type": "AWS::IAM::Role",
     "DependsOn": [
       "ServerlessEsLogsS3",
-      "ServerlessEsLogsLogGroup"
+      "ServerlessEsLogsLogGroup",
+      "EsLogsProcesserLambdaFunction"
     ],
     "Properties": {
       "AssumeRolePolicyDocument": {
@@ -101,6 +102,34 @@
                 "Effect": "Allow",
                 "Action": [
                   "logs:*"
+                ],
+                "Resource": [
+                  {
+                    "Fn::GetAtt": [
+                      "ServerlessEsLogsLogGroup",
+                      "Arn"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "PolicyName": {
+            "Fn::Join": [
+              "-",
+              []
+            ]
+          },
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "lambda:InvokeFunction",
+                  "lambda:GetFunctionConfiguration"
                 ],
                 "Resource": [
                   {
