@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import fs from 'fs-extra';
+import _ from 'lodash';
 import path from 'path';
 
 import { formatFirehose, formatIamFirehoseRole, formatLogGroup } from './formatters';
@@ -29,11 +29,13 @@ class ServerlessEsLogsPlugin {
     this.provider = serverless.getProvider('aws');
     this.options = options;
     this.custom = serverless.service.custom || {};
+    // tslint:disable:object-literal-sort-keys
     this.hooks = {
       'after:package:initialize': this.afterPackageInitialize.bind(this),
       'after:package:createDeploymentArtifacts': this.afterPackageCreateDeploymentArtifacts.bind(this),
       'aws:package:finalize:mergeCustomProviderResources': this.mergeCustomProviderResources.bind(this),
     };
+    // tslint:enable:object-literal-sort-keys
   }
 
   private afterPackageCreateDeploymentArtifacts(): void {
@@ -51,7 +53,6 @@ class ServerlessEsLogsPlugin {
       || this.serverless.service.provider.region
       || (this.serverless.service.defaults && this.serverless.service.defaults.region)
       || 'us-east-1';
-    
     // Add log processing lambda
     // TODO: Find the right lifecycle method for this
     this.addLogProcesser();
@@ -145,16 +146,16 @@ class ServerlessEsLogsPlugin {
     fs.copySync(path.resolve(__dirname, '../templates/logProcesser.js'), filePath);
     this.serverless.service.functions[this.logProcesserName] = {
       description: 'Serverless ES Logs Plugin',
-      handler,
       events: [],
+      handler,
       memorySize: 512,
       name,
-      runtime: 'nodejs8.10',
       package: {
-        individually: true,
         exclude: ['**'],
-        include: [this.logProcesserDir + '/**'],
+        include: [`${this.logProcesserDir}/**`],
+        individually: true,
       },
+      runtime: 'nodejs8.10',
       timeout: 60,
     };
   }
