@@ -6,4 +6,4 @@ node_js:
 
 install:
   travis_retry yarn
-
+  yarn lint
