@@ -5,5 +5,5 @@ node_js:
   - "10"
 
 install:
-  travis_retry yarn
-  yarn lint
+  - travis_retry yarn
+  - yarn lint
