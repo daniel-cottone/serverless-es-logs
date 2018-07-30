@@ -62,8 +62,20 @@ const AWS = require('aws-sdk');
  *
  * The result must be returned in a Promise.
  */
+function isJsonString(s) {
+    try {
+        JSON.parse(s);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 function transformLogEvent(logEvent) {
-    return Promise.resolve(`${logEvent.message}\n`);
+    const msg = logEvent.message.trim();
+    return (isJsonString(msg))
+        ? Promise.resolve(`${msg}\n`)
+        : Promise.resolve(`${JSON.stringify({ msg })}\n`);
 }
 
 function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
@@ -180,6 +192,7 @@ exports.handler = (event, context, callback) => {
             return Promise.all(promises)
                 .then(transformed => {
                     const payload = transformed.reduce((a, v) => a + v, '');
+                    console.log(payload);
                     const encoded = new Buffer(payload).toString('base64');
                     return {
                         recordId: r.recordId,

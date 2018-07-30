@@ -164,6 +164,13 @@ class ServerlessEsLogsPlugin {
     const normalizedFunctionName = this.provider.naming.getNormalizedFunctionName(this.logProcesserName);
     const templateKey = `${normalizedFunctionName}LambdaFunction`;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
+
+    // Copy default role policies to log processer lambda role
+    const defaultRolePolicies = template.Resources.IamRoleLambdaExecution.Properties.Policies;
+    const logRolePolicies = template.Resources.ServerlessEsLogsLambdaIAMRole.Properties.Policies;
+    template.Resources.ServerlessEsLogsLambdaIAMRole.Properties.Policies = logRolePolicies.concat(defaultRolePolicies);
+
+    // Update lambda dependencies
     template.Resources[templateKey].DependsOn.push('ServerlessEsLogsLambdaIAMRole');
     template.Resources[templateKey].Properties.Role = {
       'Fn::GetAtt': [
