@@ -1,3 +1,11 @@
+## [1.0.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.0.0...v1.0.1) (2018-08-02)
+
+
+### Bug Fixes
+
+* **iam-lambda:** Adding XRay policy to log lambda IAM role ([9fd8e50](https://github.com/daniel-cottone/serverless-es-logs/commit/9fd8e50))
+* **patchLogProcesserRole:** Removing reference to default role ([49fe9d7](https://github.com/daniel-cottone/serverless-es-logs/commit/49fe9d7))
+
 # 1.0.0 (2018-08-02)
 
 
