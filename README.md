@@ -9,6 +9,9 @@ A [Serverless][sls-url] plugin for transporting Cloudwatch log groups within you
 
 ## Table of Contents
 
+- [Installation](#installation)
+- [Usage](#usage)
+
 ## Installation
 
 Install the plugin in your project:
