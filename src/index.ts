@@ -172,6 +172,7 @@ class ServerlessEsLogsPlugin {
       },
       runtime: 'nodejs8.10',
       timeout: 60,
+      tracing: false,
     };
   }
 
