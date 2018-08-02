@@ -1,6 +1,6 @@
 {
   "name": "serverless-es-logs",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "MIT",
   "description": "A Serverless plugin to transport logs to ElasticSearch",
   "author": "Daniel Cottone",
