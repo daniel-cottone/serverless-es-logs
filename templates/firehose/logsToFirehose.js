@@ -74,8 +74,8 @@ function isJsonString(s) {
 function transformLogEvent(logEvent) {
     const msg = logEvent.message.trim();
     return (isJsonString(msg))
-        ? Promise.resolve(`${msg}\n`)
-        : Promise.resolve(`${JSON.stringify({ msg })}\n`);
+        ? Promise.resolve(`${msg}`)
+        : Promise.resolve(`${JSON.stringify({ msg, timestamp: new Date(logEvent.timestamp).toISOString() })}`);
 }
 
 function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {

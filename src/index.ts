@@ -2,17 +2,8 @@ import fs from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
 
-import { formatFirehose, formatIamFirehoseRole, formatLogGroup } from './formatters';
-
 // tslint:disable:no-var-requires
-const cloudwatchLogGroupTemplate = require('../templates/cloudwatch-log-group.json');
-const cloudwatchLogStreamEsTemplate = require('../templates/cloudwatch-log-stream-es.json');
-const cloudwatchLogStreamS3Template = require('../templates/cloudwatch-log-stream-s3.json');
-const firehoseTemplate = require('../templates/firehose.json');
-const iamCloudwatchTemplate = require('../templates/iam-cloudwatch.json');
-const iamLambdaTemplate = require('../templates/iam-lambda.json');
-const iamFirehoseTemplate = require('../templates/iam-firehose.json');
-const s3Template = require('../templates/s3.json');
+const iamLambdaTemplate = require('../templates/elasticsearch/iam-lambda.json');
 // tslint:enable:no-var-requires
 
 class ServerlessEsLogsPlugin {
@@ -74,30 +65,22 @@ class ServerlessEsLogsPlugin {
     // Add cloudwatch subscriptions to firehose for functions' log groups
     this.addCloudwatchSubscriptions();
 
-    // Add custom resources for firehose -> elasticsearch
-    _.merge(template.Resources, s3Template);
-    _.merge(template.Resources, formatLogGroup({
-      ...formatOpts,
-      template: cloudwatchLogGroupTemplate,
-    }));
-    _.merge(template.Resources, cloudwatchLogStreamEsTemplate);
-    _.merge(template.Resources, cloudwatchLogStreamS3Template);
-    _.merge(template.Resources, iamCloudwatchTemplate);
+    // Add IAM role for cloudwatch -> elasticsearch lambda
     _.merge(template.Resources, iamLambdaTemplate);
-    _.merge(template.Resources, formatIamFirehoseRole({
-      ...formatOpts,
-      template: iamFirehoseTemplate,
-    }));
-    _.merge(template.Resources, formatFirehose({
-      ...formatOpts,
-      template: firehoseTemplate,
-    }));
 
-    // Patch log processer lambda role
+    // Patch lambda role
     this.patchLogProcesserRole();
   }
 
   private addCloudwatchSubscriptions(): void {
+    this.addLambdaLogSubscriptions();
+  }
+
+  private addApiGwLogSubscription(): void {
+    // filter: [apigw_request_id="*-*", event]
+  }
+
+  private addLambdaLogSubscriptions(): void {
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const subscriptionsTemplate: { [name: string]: any } = {};
     const functions = this.serverless.service.getAllFunctions();
@@ -107,29 +90,56 @@ class ServerlessEsLogsPlugin {
       }
 
       const normalizedFunctionName = this.provider.naming.getNormalizedFunctionName(name);
-      const logicalId = `${normalizedFunctionName}SubscriptionFilter`;
+      const subscriptionLogicalId = `${normalizedFunctionName}SubscriptionFilter`;
+      const permissionLogicalId = `${normalizedFunctionName}CWPermission`;
       const logGroupLogicalId = `${normalizedFunctionName}LogGroup`;
       const logGroupName = template.Resources[logGroupLogicalId].Properties.LogGroupName;
-      subscriptionsTemplate[logicalId] = {
+
+      // Create lambda permission for subscription filter
+      subscriptionsTemplate[permissionLogicalId] = {
         DependsOn: [
-          'ServerlessEsLogsFirehose',
-          'ServerlessEsLogsCWIAMRole',
+          'EsLogsProcesserLambdaFunction',
+          logGroupLogicalId,
+        ],
+        Properties: {
+          Action: 'lambda:InvokeFunction',
+          FunctionName: {
+            'Fn::GetAtt': [
+              'EsLogsProcesserLambdaFunction',
+              'Arn',
+            ],
+          },
+          Principal: {
+            'Fn::Sub': 'logs.${AWS::Region}.amazonaws.com',
+          },
+          SourceAccount: {
+            'Fn::Sub': '${AWS::AccountId}',
+          },
+          SourceArn: {
+            'Fn::GetAtt': [
+              logGroupLogicalId,
+              'Arn',
+            ],
+          },
+        },
+        Type: 'AWS::Lambda::Permission',
+      };
+
+      // Create subscription filter
+      subscriptionsTemplate[subscriptionLogicalId] = {
+        DependsOn: [
+          'EsLogsProcesserLambdaFunction',
+          permissionLogicalId,
         ],
         Properties: {
           DestinationArn: {
             'Fn::GetAtt': [
-              'ServerlessEsLogsFirehose',
+              'EsLogsProcesserLambdaFunction',
               'Arn',
             ],
           },
-          FilterPattern: '',
+          FilterPattern: '[timestamp=*Z, request_id="*-*", event]',
           LogGroupName: logGroupName,
-          RoleArn: {
-            'Fn::GetAtt': [
-              'ServerlessEsLogsCWIAMRole',
-              'Arn',
-            ],
-          },
         },
         Type : 'AWS::Logs::SubscriptionFilter',
       };
@@ -138,14 +148,19 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
+    const { index, endpoint } = this.custom.esLogs;
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
     const handler = `${this.logProcesserDir}/index.handler`;
     const name = `${this.serverless.service.service}-${this.options.stage}-es-logs-plugin`;
     fs.ensureDirSync(dirPath);
-    fs.copySync(path.resolve(__dirname, '../templates/logProcesser.js'), filePath);
+    fs.copySync(path.resolve(__dirname, '../templates/elasticsearch/logsToEs.js'), filePath);
     this.serverless.service.functions[this.logProcesserName] = {
       description: 'Serverless ES Logs Plugin',
+      environment: {
+        ES_ENDPOINT: endpoint,
+        INDEX_PREFIX: index,
+      },
       events: [],
       handler,
       memorySize: 512,
