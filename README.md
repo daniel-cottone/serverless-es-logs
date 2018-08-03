@@ -3,6 +3,7 @@
 [![serverless][sls-image]][sls-url]
 [![npm package][npm-image]][npm-url]
 [![Build status][travis-image]][travis-url]
+[![Coverage status][coveralls-image]][coveralls-url]
 [![Renovate][renovate-image]][renovate-url]
 
 A [Serverless][sls-url] plugin for transporting Cloudwatch log groups within your CloudFormation stack into Elasticsearch.
@@ -44,5 +45,7 @@ Your logs will now be transported to the specified elasticsearch instance using 
 [npm-url]:https://www.npmjs.com/package/serverless-es-logs
 [travis-image]:https://travis-ci.org/daniel-cottone/serverless-es-logs.svg?branch=master
 [travis-url]:https://travis-ci.org/daniel-cottone/serverless-es-logs
+[coveralls-image]:https://coveralls.io/repos/github/daniel-cottone/serverless-es-logs/badge.svg?branch=master
+[coveralls-url]:https://coveralls.io/github/daniel-cottone/serverless-es-logs?branch=master
 [renovate-image]:https://img.shields.io/badge/renovate-enabled-brightgreen.svg
 [renovate-url]:https://renovatebot.com/
