@@ -1,10 +1,13 @@
 import { expect } from 'chai';
+import fs from 'fs-extra';
+import path from 'path';
 
 import ServerlessEsLogsPlugin from '../../src';
 import { ServerlessBuilder } from '../support';
 
 // tslint:disable
 describe('serverless-es-logs :: Plugin tests', () => {
+  const dirPath = path.join(process.cwd(), '_es-logs');
   const defaultOptions = {
     service: {
       custom: {
@@ -25,6 +28,10 @@ describe('serverless-es-logs :: Plugin tests', () => {
     plugin = new ServerlessEsLogsPlugin(serverless, options);
   });
 
+  afterEach(() => {
+    fs.removeSync(dirPath);
+  });
+
   describe('#hooks', () => {
     describe('after:package:initialize', () => {
       it('should exist', () => {
@@ -33,6 +40,12 @@ describe('serverless-es-logs :: Plugin tests', () => {
 
       it('should validate plugin options successfully', () => {
         expect(plugin.hooks['after:package:initialize']).to.not.throw;
+      });
+
+      it('should create the log processer function', () => {
+        plugin.hooks['after:package:initialize']();
+        expect(serverless.service.functions).to.have.property('esLogsProcesser');
+        expect(fs.existsSync(dirPath)).to.be.true;
       });
 
       it('should throw an error if missing plugin options', () => {
@@ -84,6 +97,12 @@ describe('serverless-es-logs :: Plugin tests', () => {
     describe('after:package:createDeploymentArtifacts', () => {
       it('should exist', () => {
         expect(plugin.hooks['after:package:createDeploymentArtifacts']).to.exist;
+      });
+
+      it('should cleanup the log processer code dir', () => {
+        fs.ensureDirSync(dirPath);
+        plugin.hooks['after:package:createDeploymentArtifacts']();
+        expect(fs.existsSync(dirPath)).to.be.false;
       });
     });
 
