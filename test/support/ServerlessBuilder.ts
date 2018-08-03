@@ -5,6 +5,9 @@ const normalizeName = (name: string) => name && `${_.startCase(name).split(' ').
 
 export class ServerlessBuilder {
   private readonly defaults = {
+    classes: {
+      Error,
+    },
     cli: {
       log: sinon.stub(),
     },

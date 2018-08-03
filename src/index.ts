@@ -44,6 +44,8 @@ class ServerlessEsLogsPlugin {
       || this.serverless.service.provider.region
       || (this.serverless.service.defaults && this.serverless.service.defaults.region)
       || 'us-east-1';
+    this.validatePluginOptions();
+
     // Add log processing lambda
     // TODO: Find the right lifecycle method for this
     this.addLogProcesser();
@@ -53,14 +55,6 @@ class ServerlessEsLogsPlugin {
     this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
     const { stage, region } = this.options;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
-    const formatOpts = {
-      options: {
-        ...this.custom.esLogs,
-      },
-      region,
-      service: this.serverless.service.service,
-      stage,
-    };
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
     this.addCloudwatchSubscriptions();
@@ -70,6 +64,22 @@ class ServerlessEsLogsPlugin {
 
     // Patch lambda role
     this.patchLogProcesserRole();
+  }
+
+  private validatePluginOptions(): void {
+    const { esLogs } = this.custom;
+    if (!esLogs) {
+      throw new this.serverless.classes.Error(`ERROR: No configuration provided for serverless-es-logs!`);
+    }
+
+    const { endpoint, index } = esLogs;
+    if (!endpoint) {
+      throw new this.serverless.classes.Error(`ERROR: Must define an endpoint for serverless-es-logs!`);
+    }
+
+    if (!index) {
+      throw new this.serverless.classes.Error(`ERROR: Must define an index for serverless-es-logs!`);
+    }
   }
 
   private addCloudwatchSubscriptions(): void {
