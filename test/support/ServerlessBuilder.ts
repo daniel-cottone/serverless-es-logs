@@ -25,7 +25,18 @@ export class ServerlessBuilder {
     },
     service: {
       functions: {},
+      getAllFunctions: () => {
+        return Object.keys(this.serverless.service.functions);
+      },
       provider: {
+        compiledCloudFormationTemplate: {
+          Resources: {
+            EsLogsProcesserLambdaFunction: {
+              DependsOn: [],
+              Properties: {},
+            },
+          },
+        },
         name: 'aws',
         region: 'us-east-1',
         runtime: 'nodejs8.10',

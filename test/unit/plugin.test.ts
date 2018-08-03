@@ -1,5 +1,7 @@
 import { expect } from 'chai';
+import { random } from 'faker';
 import fs from 'fs-extra';
+import _ from 'lodash';
 import path from 'path';
 
 import ServerlessEsLogsPlugin from '../../src';
@@ -38,59 +40,63 @@ describe('serverless-es-logs :: Plugin tests', () => {
         expect(plugin.hooks['after:package:initialize']).to.exist;
       });
 
-      it('should validate plugin options successfully', () => {
-        expect(plugin.hooks['after:package:initialize']).to.not.throw;
-      });
+      describe('#validatePluginOptions()', () => {
+        it('should validate plugin options successfully', () => {
+          expect(plugin.hooks['after:package:initialize']).to.not.throw;
+        });
 
-      it('should create the log processer function', () => {
-        plugin.hooks['after:package:initialize']();
-        expect(serverless.service.functions).to.have.property('esLogsProcesser');
-        expect(fs.existsSync(dirPath)).to.be.true;
-      });
-
-      it('should throw an error if missing plugin options', () => {
-        serverless = new ServerlessBuilder().build();
-        plugin = new ServerlessEsLogsPlugin(serverless, options);
-        expect(plugin.hooks['after:package:initialize']).to.throw(
-          Error,
-          'ERROR: No configuration provided for serverless-es-logs!',
-        );
-      });
-
-      it('should throw an error if missing option \'endpoint\'', () => {
-        const opts = {
-          service: {
-            custom: {
-              esLogs: {
-                index: 'some_index',
+        it('should throw an error if missing plugin options', () => {
+          serverless = new ServerlessBuilder().build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          expect(plugin.hooks['after:package:initialize']).to.throw(
+            Error,
+            'ERROR: No configuration provided for serverless-es-logs!',
+          );
+        });
+  
+        it('should throw an error if missing option \'endpoint\'', () => {
+          const opts = {
+            service: {
+              custom: {
+                esLogs: {
+                  index: 'some_index',
+                },
               },
             },
-          },
-        };
-        serverless = new ServerlessBuilder(opts).build();
-        plugin = new ServerlessEsLogsPlugin(serverless, options);
-        expect(plugin.hooks['after:package:initialize']).to.throw(
-          Error,
-          'ERROR: Must define an endpoint for serverless-es-logs!',
-        );
-      });
-
-      it('should throw an error if missing option \'index\'', () => {
-        const opts = {
-          service: {
-            custom: {
-              esLogs: {
-                endpoint: 'some_endpoint',
+          };
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          expect(plugin.hooks['after:package:initialize']).to.throw(
+            Error,
+            'ERROR: Must define an endpoint for serverless-es-logs!',
+          );
+        });
+  
+        it('should throw an error if missing option \'index\'', () => {
+          const opts = {
+            service: {
+              custom: {
+                esLogs: {
+                  endpoint: 'some_endpoint',
+                },
               },
             },
-          },
-        };
-        serverless = new ServerlessBuilder(opts).build();
-        plugin = new ServerlessEsLogsPlugin(serverless, options);
-        expect(plugin.hooks['after:package:initialize']).to.throw(
-          Error,
-          'ERROR: Must define an index for serverless-es-logs!',
-        );
+          };
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          expect(plugin.hooks['after:package:initialize']).to.throw(
+            Error,
+            'ERROR: Must define an index for serverless-es-logs!',
+          );
+        });
+      });
+
+      describe('#addLogProcesser()', () => {
+        it('should create the log processer function', () => {
+          plugin.hooks['after:package:initialize']();
+          expect(serverless.service.functions).to.have.property('esLogsProcesser');
+          expect(fs.existsSync(dirPath)).to.be.true;
+        });
       });
     });
 
@@ -99,16 +105,56 @@ describe('serverless-es-logs :: Plugin tests', () => {
         expect(plugin.hooks['after:package:createDeploymentArtifacts']).to.exist;
       });
 
-      it('should cleanup the log processer code dir', () => {
-        fs.ensureDirSync(dirPath);
-        plugin.hooks['after:package:createDeploymentArtifacts']();
-        expect(fs.existsSync(dirPath)).to.be.false;
+      describe('#cleanupFiles()', () => {
+        it('should cleanup the log processer code dir', () => {
+          fs.ensureDirSync(dirPath);
+          plugin.hooks['after:package:createDeploymentArtifacts']();
+          expect(fs.existsSync(dirPath)).to.be.false;
+        });
       });
     });
 
     describe('aws:package:finalize:mergeCustomProviderResources', () => {
       it('should exist', () => {
         expect(plugin.hooks['aws:package:finalize:mergeCustomProviderResources']).to.exist;
+      });
+
+      it('should create an IAM role for the log processer function', () => {
+        const template = serverless.service.provider.compiledCloudFormationTemplate;
+        plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+        expect(template.Resources).to.have.property('ServerlessEsLogsLambdaIAMRole');
+      });
+
+      describe('#addCloudwatchSubscriptions()', () => {
+        it('shouldn\'t add any subscriptions or permissions if there are no functions', () => {
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
+          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
+          expect(subscriptions.length).to.equal(0);
+          expect(permissions.length).to.equal(0);
+        });
+
+        it('should create a subscription and permission per function', () => {
+          const numFunctions = random.number({ min: 1, max: 5 });
+          for (let i = 0; i < numFunctions; i++) {
+            const functionName = `function${i}`;
+            const normalized = serverless.getProvider('aws').naming.getNormalizedFunctionName(functionName);
+            serverless.service.functions[functionName] = {};
+            serverless.service.provider.compiledCloudFormationTemplate.Resources[`${normalized}LogGroup`] = {
+              Properties: {
+                LogGroupName: '',
+              },
+            };
+          }
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
+          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
+          expect(subscriptions.length).to.equal(numFunctions);
+          expect(permissions.length).to.equal(numFunctions);
+        });
       });
     });
   });
