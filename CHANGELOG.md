@@ -1,3 +1,11 @@
+## [1.0.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.0.2...v1.0.3) (2018-08-03)
+
+
+### Bug Fixes
+
+* Cleaning up code and adding tests ([20e8437](https://github.com/daniel-cottone/serverless-es-logs/commit/20e8437))
+* **options:** Adding validation for plugin options ([c45aad0](https://github.com/daniel-cottone/serverless-es-logs/commit/c45aad0))
+
 ## [1.0.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.0.1...v1.0.2) (2018-08-02)
 
 
