@@ -7,8 +7,8 @@ const iamLambdaTemplate = require('../templates/iam/lambda-role.json');
 // tslint:enable:no-var-requires
 
 class ServerlessEsLogsPlugin {
+  public hooks: { [name: string]: () => void };
   private provider: any;
-  private hooks: { [name: string]: () => void };
   private serverless: any;
   private options: { [name: string]: any };
   private custom: { [name: string]: any };
