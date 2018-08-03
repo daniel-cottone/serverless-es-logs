@@ -1,5 +1,7 @@
-node_modules
+.nyc_output
+coverage
 dist
+node_modules
 
 # os files
 .DS_Store

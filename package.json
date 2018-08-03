@@ -3,11 +3,15 @@
   "version": "1.0.2",
   "license": "MIT",
   "description": "A Serverless plugin to transport logs to ElasticSearch",
-  "author": "Daniel Cottone",
+  "author": "Daniel Cottone <daniel.cottone@asurion.com> (https://github.com/daniel-cottone)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/daniel-cottone/serverless-es-logs"
+    "url": "git+https://github.com/daniel-cottone/serverless-es-logs.git"
   },
+  "bugs": {
+    "url": "https://github.com/daniel-cottone/serverless-es-logs/issues"
+  },
+  "homepage": "https://github.com/daniel-cottone/serverless-es-logs",
   "engines": {
     "node": ">=6.10.0"
   },
@@ -16,15 +20,18 @@
     "compile": "tsc",
     "compile:clean": "rimraf dist",
     "compile:watch": "tsc -w",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "tslint --project . --format stylish",
     "prepublish": "yarn compile:clean && yarn compile",
     "release": "semantic-release",
-    "test": "echo 'not yet!'"
+    "test": "nyc mocha"
   },
   "keywords": [
     "aws",
     "lambda",
     "aws lambda",
+    "amazon web services",
+    "api gateway",
     "serverless",
     "plugin",
     "serverless plugin",
@@ -62,11 +69,20 @@
     "@semantic-release/changelog": "3.0.0",
     "@semantic-release/git": "7.0.1",
     "@semantic-release/github": "5.0.1",
+    "@types/chai": "4.1.4",
     "@types/fs-extra": "5.0.4",
     "@types/lodash": "4.14.115",
+    "@types/mocha": "5.2.5",
     "@types/node": "10.5.5",
+    "@types/sinon": "5.0.1",
+    "chai": "4.1.2",
+    "coveralls": "3.0.2",
+    "mocha": "5.2.0",
+    "nyc": "12.0.2",
     "rimraf": "2.6.2",
     "semantic-release": "15.9.2",
+    "sinon": "6.1.4",
+    "ts-node": "7.0.0",
     "tslint": "5.11.0",
     "typescript": "3.0.1"
   }

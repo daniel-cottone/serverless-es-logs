@@ -3,7 +3,7 @@ import _ from 'lodash';
 import path from 'path';
 
 // tslint:disable:no-var-requires
-const iamLambdaTemplate = require('../templates/elasticsearch/iam-lambda.json');
+const iamLambdaTemplate = require('../templates/iam/lambda-role.json');
 // tslint:enable:no-var-requires
 
 class ServerlessEsLogsPlugin {
@@ -154,7 +154,7 @@ class ServerlessEsLogsPlugin {
     const handler = `${this.logProcesserDir}/index.handler`;
     const name = `${this.serverless.service.service}-${this.options.stage}-es-logs-plugin`;
     fs.ensureDirSync(dirPath);
-    fs.copySync(path.resolve(__dirname, '../templates/elasticsearch/logsToEs.js'), filePath);
+    fs.copySync(path.resolve(__dirname, '../templates/code/logsToEs.js'), filePath);
     this.serverless.service.functions[this.logProcesserName] = {
       description: 'Serverless ES Logs Plugin',
       environment: {

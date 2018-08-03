@@ -4,6 +4,16 @@ node_js:
   - "8"
   - "10"
 
+env:
+  - SERVERLESS_VERSION=latest
+  - SERVERLESS_VERSION=latest~1
+  - SERVERLESS_VERSION=latest~2
+  - SERVERLESS_VERSION=latest~3
+  - SERVERLESS_VERSION=latest~4
+
 install:
   - travis_retry yarn
   - yarn lint
+
+after_success:
+  - yarn coverage

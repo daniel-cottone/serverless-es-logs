@@ -1,0 +1,4 @@
+{
+    "extension": [".ts"],
+    "reporter": ["text", "html"]
+}
