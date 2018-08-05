@@ -71,6 +71,16 @@ custom:
     index: some-index
 ```
 
+#### retentionInDays
+
+(Optional) The number of days that Cloudwatch logs should persist. Default is to never expire.
+
+```yaml
+custom:
+  esLogs:
+    retentionInDays: 7
+```
+
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg

@@ -34,6 +34,21 @@ describe('serverless-es-logs :: Plugin tests', () => {
     fs.removeSync(dirPath);
   });
 
+  const addFunctions = (numFunctions: number) => {
+    for (let i = 0; i < numFunctions; i++) {
+      const functionName = `function${i}`;
+      const normalized = serverless.getProvider('aws').naming.getNormalizedFunctionName(functionName);
+      serverless.service.functions[functionName] = {};
+      serverless.service.provider.compiledCloudFormationTemplate.Resources[`${normalized}LogGroup`] = {
+        Properties: {
+          LogGroupName: 'logGroupName',
+        },
+        Type: 'AWS::Logs::LogGroup',
+      };
+    }
+    plugin = new ServerlessEsLogsPlugin(serverless, options);       
+  };
+
   describe('#hooks', () => {
     describe('after:package:initialize', () => {
       it('should exist', () => {
@@ -137,23 +152,38 @@ describe('serverless-es-logs :: Plugin tests', () => {
 
         it('should create a subscription and permission per function', () => {
           const numFunctions = random.number({ min: 1, max: 5 });
-          for (let i = 0; i < numFunctions; i++) {
-            const functionName = `function${i}`;
-            const normalized = serverless.getProvider('aws').naming.getNormalizedFunctionName(functionName);
-            serverless.service.functions[functionName] = {};
-            serverless.service.provider.compiledCloudFormationTemplate.Resources[`${normalized}LogGroup`] = {
-              Properties: {
-                LogGroupName: 'logGroupName',
-              },
-            };
-          }
-          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          addFunctions(numFunctions);
           const template = serverless.service.provider.compiledCloudFormationTemplate;
           plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
           const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
           const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
           expect(subscriptions.length).to.equal(numFunctions);
           expect(permissions.length).to.equal(numFunctions);
+        });
+      });
+
+      describe('#configureLogRetention()', () => {
+        it('shouldn\'t configure log retention if \'configureLogRetention\' option is not set', () => {
+          const numFunctions = random.number({ min: 1, max: 5 });
+          addFunctions(numFunctions);
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          const logGroups = _.filter(template.Resources, (v, k) => {
+            return v.Type === 'AWS::Logs::LogGroup' && v.Properties.RetentionInDays !== undefined;
+          });
+          expect(logGroups.length).to.equal(0);
+        });
+
+        it('should configure log retention per function', () => {
+          serverless.service.custom.esLogs.retentionInDays = 7;
+          const numFunctions = random.number({ min: 1, max: 5 });
+          addFunctions(numFunctions);
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          const logGroups = _.filter(template.Resources, (v, k) => {
+            return v.Type === 'AWS::Logs::LogGroup' && v.Properties.RetentionInDays !== undefined;
+          });
+          expect(logGroups.length).to.equal(numFunctions);
         });
       });
     });
