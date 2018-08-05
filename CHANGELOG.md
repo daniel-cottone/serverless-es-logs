@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.0.3...v1.1.0) (2018-08-05)
+
+
+### Features
+
+* **includeApiGWLogs:** Adding support for API Gateway logs. Fixes [#10](https://github.com/daniel-cottone/serverless-es-logs/issues/10) ([#15](https://github.com/daniel-cottone/serverless-es-logs/issues/15)) ([dd7fddd](https://github.com/daniel-cottone/serverless-es-logs/commit/dd7fddd))
+* **retentionInDays:** Adding option for setting Cloudwatch log retention. Fixes [#11](https://github.com/daniel-cottone/serverless-es-logs/issues/11) ([#16](https://github.com/daniel-cottone/serverless-es-logs/issues/16)) ([c1d1ad2](https://github.com/daniel-cottone/serverless-es-logs/commit/c1d1ad2))
+
 ## [1.0.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.0.2...v1.0.3) (2018-08-03)
 
 
