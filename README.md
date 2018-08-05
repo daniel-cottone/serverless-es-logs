@@ -39,6 +39,38 @@ custom:
 
 Your logs will now be transported to the specified elasticsearch instance using the provided index.
 
+### Options
+
+#### endpoint
+
+(Required) The endpoint of the Elasticsearch instance the logs should be transported to.
+
+```yaml
+custom:
+  esLogs:
+    endpoint: some-elasticsearch-endpoint.us-east-1.es.amazonaws.com
+```
+
+#### includeApiGWLogs
+
+(Optional) An option to be used in conjunction with the [serverless-aws-alias](https://github.com/HyperBrain/serverless-aws-alias) plugin. This will capture logs created by API Gateway and transport them to Elasticsearch.
+
+```yaml
+custom:
+  esLogs:
+    includeApiGWLogs: true
+```
+
+#### index
+
+(Required) The Elasticsearch index that should be applied to the logs.
+
+```yaml
+custom:
+  esLogs:
+    index: some-index
+```
+
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg

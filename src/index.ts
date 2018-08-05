@@ -2,6 +2,8 @@ import fs from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
 
+import { LambdaPermissionBuilder, SubscriptionFilterBuilder, TemplateBuilder } from './utils';
+
 // tslint:disable:no-var-requires
 const iamLambdaTemplate = require('../templates/iam/lambda-role.json');
 // tslint:enable:no-var-requires
@@ -25,6 +27,7 @@ class ServerlessEsLogsPlugin {
       'after:package:initialize': this.afterPackageInitialize.bind(this),
       'after:package:createDeploymentArtifacts': this.afterPackageCreateDeploymentArtifacts.bind(this),
       'aws:package:finalize:mergeCustomProviderResources': this.mergeCustomProviderResources.bind(this),
+      'before:aws:deploy:deploy:updateStack': this.beforeAwsDeployUpdateStack.bind(this),
     };
     // tslint:enable:object-literal-sort-keys
   }
@@ -36,14 +39,7 @@ class ServerlessEsLogsPlugin {
 
   private afterPackageInitialize(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.afterPackageInitialize()');
-    this.options.stage = this.options.stage
-      || this.serverless.service.provider.stage
-      || (this.serverless.service.defaults && this.serverless.service.defaults.stage)
-      || 'dev';
-    this.options.region = this.options.region
-      || this.serverless.service.provider.region
-      || (this.serverless.service.defaults && this.serverless.service.defaults.region)
-      || 'us-east-1';
+    this.formatCommandLineOpts();
     this.validatePluginOptions();
 
     // Add log processing lambda
@@ -57,13 +53,34 @@ class ServerlessEsLogsPlugin {
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
-    this.addCloudwatchSubscriptions();
+    this.addLambdaCloudwatchSubscriptions();
 
     // Add IAM role for cloudwatch -> elasticsearch lambda
     _.merge(template.Resources, iamLambdaTemplate);
 
     // Patch lambda role
     this.patchLogProcesserRole();
+  }
+
+  private beforeAwsDeployUpdateStack(): void {
+    this.serverless.cli.log('ServerlessEsLogsPlugin.beforeAwsDeployUpdateStack()');
+    const { includeApiGWLogs } = this.custom.esLogs;
+
+    // Add cloudwatch subscription for API Gateway logs
+    if (includeApiGWLogs === true) {
+      this.addApiGwCloudwatchSubscription();
+    }
+  }
+
+  private formatCommandLineOpts(): void {
+    this.options.stage = this.options.stage
+      || this.serverless.service.provider.stage
+      || (this.serverless.service.defaults && this.serverless.service.defaults.stage)
+      || 'dev';
+    this.options.region = this.options.region
+      || this.serverless.service.provider.region
+      || (this.serverless.service.defaults && this.serverless.service.defaults.region)
+      || 'us-east-1';
   }
 
   private validatePluginOptions(): void {
@@ -82,18 +99,80 @@ class ServerlessEsLogsPlugin {
     }
   }
 
-  private addCloudwatchSubscriptions(): void {
-    this.addLambdaLogSubscriptions();
+  private addApiGwCloudwatchSubscription(): void {
+    const filterPattern = '[apigw_request_id="*-*", event]';
+    const apiGatewayStageLogicalId = 'ApiGatewayStage';
+    const processorAliasLogicalId = 'EsLogsProcesserAlias';
+    const template = this.serverless.service.provider.compiledCloudFormationAliasTemplate;
+
+    // Check if API Gateway stage exists
+    if (template && template.Resources[apiGatewayStageLogicalId]) {
+      const { StageName, RestApiId } = template.Resources[apiGatewayStageLogicalId].Properties;
+      const subscriptionLogicalId = `${apiGatewayStageLogicalId}SubscriptionFilter`;
+      const permissionLogicalId = `${apiGatewayStageLogicalId}CWPermission`;
+      const processorFunctionName = template.Resources[processorAliasLogicalId].Properties.FunctionName;
+
+      // Create permission for subscription filter
+      const permission = new LambdaPermissionBuilder()
+        .withFunctionName(processorFunctionName)
+        .withPrincipal({
+          'Fn::Sub': 'logs.${AWS::Region}.amazonaws.com',
+        })
+        .withSourceArn({
+          'Fn::Join': [
+            '',
+            [
+              'arn:aws:logs:',
+              {
+                Ref: 'AWS::Region',
+              },
+              ':',
+              {
+                Ref: 'AWS::AccountId',
+              },
+              ':log-group:API-Gateway-Execution-Logs_',
+              RestApiId,
+              '/*',
+            ],
+          ],
+        })
+        .withDependsOn([ processorAliasLogicalId, apiGatewayStageLogicalId ])
+        .build();
+
+      // Create subscription filter
+      const subscriptionFilter = new SubscriptionFilterBuilder()
+        .withDestinationArn(processorFunctionName)
+        .withFilterPattern(filterPattern)
+        .withLogGroupName({
+          'Fn::Join': [
+            '',
+            [
+              'API-Gateway-Execution-Logs_',
+              RestApiId,
+              `/${StageName}`,
+            ],
+          ],
+        })
+        .withDependsOn([ processorAliasLogicalId, permissionLogicalId ])
+        .build();
+
+      // Create subscription template
+      const subscriptionTemplate = new TemplateBuilder()
+        .withResource(permissionLogicalId, permission)
+        .withResource(subscriptionLogicalId, subscriptionFilter)
+        .build();
+
+      _.merge(template, subscriptionTemplate);
+    }
   }
 
-  private addApiGwLogSubscription(): void {
-    // filter: [apigw_request_id="*-*", event]
-  }
-
-  private addLambdaLogSubscriptions(): void {
+  private addLambdaCloudwatchSubscriptions(): void {
+    const filterPattern = '[timestamp=*Z, request_id="*-*", event]';
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
-    const subscriptionsTemplate: { [name: string]: any } = {};
     const functions = this.serverless.service.getAllFunctions();
+    const processorLogicalId = 'EsLogsProcesserLambdaFunction';
+
+    // Add cloudwatch subscription for each function except log processer
     functions.forEach((name: string) => {
       if (name === this.logProcesserName) {
         return;
@@ -105,56 +184,47 @@ class ServerlessEsLogsPlugin {
       const logGroupLogicalId = `${normalizedFunctionName}LogGroup`;
       const logGroupName = template.Resources[logGroupLogicalId].Properties.LogGroupName;
 
-      // Create lambda permission for subscription filter
-      subscriptionsTemplate[permissionLogicalId] = {
-        DependsOn: [
-          'EsLogsProcesserLambdaFunction',
-          logGroupLogicalId,
-        ],
-        Properties: {
-          Action: 'lambda:InvokeFunction',
-          FunctionName: {
-            'Fn::GetAtt': [
-              'EsLogsProcesserLambdaFunction',
-              'Arn',
-            ],
-          },
-          Principal: {
-            'Fn::Sub': 'logs.${AWS::Region}.amazonaws.com',
-          },
-          SourceAccount: {
-            'Fn::Sub': '${AWS::AccountId}',
-          },
-          SourceArn: {
-            'Fn::GetAtt': [
-              logGroupLogicalId,
-              'Arn',
-            ],
-          },
-        },
-        Type: 'AWS::Lambda::Permission',
-      };
+      // Create permission for subscription filter
+      const permission = new LambdaPermissionBuilder()
+        .withFunctionName({
+          'Fn::GetAtt': [
+            processorLogicalId,
+            'Arn',
+          ],
+        })
+        .withPrincipal({
+          'Fn::Sub': 'logs.${AWS::Region}.amazonaws.com',
+        })
+        .withSourceArn({
+          'Fn::GetAtt': [
+            logGroupLogicalId,
+            'Arn',
+          ],
+        })
+        .withDependsOn([ processorLogicalId, logGroupLogicalId ])
+        .build();
 
       // Create subscription filter
-      subscriptionsTemplate[subscriptionLogicalId] = {
-        DependsOn: [
-          'EsLogsProcesserLambdaFunction',
-          permissionLogicalId,
-        ],
-        Properties: {
-          DestinationArn: {
-            'Fn::GetAtt': [
-              'EsLogsProcesserLambdaFunction',
-              'Arn',
-            ],
-          },
-          FilterPattern: '[timestamp=*Z, request_id="*-*", event]',
-          LogGroupName: logGroupName,
-        },
-        Type : 'AWS::Logs::SubscriptionFilter',
-      };
+      const subscriptionFilter = new SubscriptionFilterBuilder()
+        .withDestinationArn({
+          'Fn::GetAtt': [
+            processorLogicalId,
+            'Arn',
+          ],
+        })
+        .withFilterPattern(filterPattern)
+        .withLogGroupName(logGroupName)
+        .withDependsOn([ processorLogicalId, permissionLogicalId ])
+        .build();
+
+      // Create subscription template
+      const subscriptionTemplate = new TemplateBuilder()
+        .withResource(permissionLogicalId, permission)
+        .withResource(subscriptionLogicalId, subscriptionFilter)
+        .build();
+
+      _.merge(template, subscriptionTemplate);
     });
-    _.merge(template.Resources, subscriptionsTemplate);
   }
 
   private addLogProcesser(): void {
