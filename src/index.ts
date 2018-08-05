@@ -49,11 +49,17 @@ class ServerlessEsLogsPlugin {
 
   private mergeCustomProviderResources(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
+    const { retentionInDays } = this.custom.esLogs;
     const { stage, region } = this.options;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
     this.addLambdaCloudwatchSubscriptions();
+
+    // Configure Cloudwatch log retention
+    if (retentionInDays !== undefined) {
+      this.configureLogRetention(retentionInDays);
+    }
 
     // Add IAM role for cloudwatch -> elasticsearch lambda
     _.merge(template.Resources, iamLambdaTemplate);
@@ -224,6 +230,15 @@ class ServerlessEsLogsPlugin {
         .build();
 
       _.merge(template, subscriptionTemplate);
+    });
+  }
+
+  private configureLogRetention(retentionInDays: number): void {
+    const template = this.serverless.service.provider.compiledCloudFormationTemplate;
+    Object.keys(template.Resources).forEach((key: string) => {
+      if (template.Resources[key].Type === 'AWS::Logs::LogGroup') {
+        template.Resources[key].Properties.RetentionInDays = retentionInDays;
+      }
     });
   }
 
