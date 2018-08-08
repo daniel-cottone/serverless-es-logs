@@ -36,7 +36,9 @@
               {
                 "Effect": "Allow",
                 "Action": "es:ESHttpPost",
-                "Resource": "arn:aws:es:*:*:*"
+                "Resource": {
+                  "Fn::Sub": "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*"
+                }
               }
             ]
           }
