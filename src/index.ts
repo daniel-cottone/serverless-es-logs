@@ -50,7 +50,6 @@ class ServerlessEsLogsPlugin {
   private mergeCustomProviderResources(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
     const { retentionInDays } = this.custom.esLogs;
-    const { stage, region } = this.options;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
@@ -62,10 +61,16 @@ class ServerlessEsLogsPlugin {
     }
 
     // Add IAM role for cloudwatch -> elasticsearch lambda
-    _.merge(template.Resources, iamLambdaTemplate);
-
-    // Patch lambda role
-    this.patchLogProcesserRole();
+    if (this.serverless.service.provider.role) {
+      _.merge(template.Resources, iamLambdaTemplate);
+      this.patchLogProcesserRole();
+    } else {
+      // Merge log processor role policies into default role
+      const updatedPolicies = template.Resources.IamRoleLambdaExecution.Properties.Policies.concat(
+        iamLambdaTemplate.ServerlessEsLogsLambdaIAMRole.Properties.Policies,
+      );
+      template.Resources.IamRoleLambdaExecution.Properties.Policies = updatedPolicies;
+    }
   }
 
   private beforeAwsDeployUpdateStack(): void {

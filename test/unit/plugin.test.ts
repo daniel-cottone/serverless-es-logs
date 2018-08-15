@@ -134,10 +134,42 @@ describe('serverless-es-logs :: Plugin tests', () => {
         expect(plugin.hooks['aws:package:finalize:mergeCustomProviderResources']).to.exist;
       });
 
-      it('should create an IAM role for the log processer function', () => {
+      it('should create an IAM role for the log processer function if default role specified', () => {
+        serverless.service.provider.role = random.word();
+        plugin = new ServerlessEsLogsPlugin(serverless, options); 
         const template = serverless.service.provider.compiledCloudFormationTemplate;
         plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
         expect(template.Resources).to.have.property('ServerlessEsLogsLambdaIAMRole');
+      });
+
+      it('should append ES policy to generated role if no default role specified', () => {
+        const template = serverless.service.provider.compiledCloudFormationTemplate;
+        plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+        expect(template.Resources).to.have.property('IamRoleLambdaExecution');
+        expect(template.Resources.IamRoleLambdaExecution.Properties.Policies).to.have.deep.members([{
+          PolicyDocument: {
+            Statement: [
+              {
+                Action: [
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                ],
+                Effect: 'Allow',
+                Resource: 'arn:aws:logs:*:*:*',
+              },
+              {
+                Action: 'es:ESHttpPost',
+                Effect: 'Allow',
+                Resource: {
+                  'Fn::Sub': 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*',
+                },
+              },
+            ],
+            Version: '2012-10-17',
+          },
+          PolicyName: 'cw-to-elasticsearch-policy',
+        }]);
       });
 
       describe('#addCloudwatchSubscriptions()', () => {

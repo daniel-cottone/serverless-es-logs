@@ -50,6 +50,12 @@ export class ServerlessBuilder {
               DependsOn: [],
               Properties: {},
             },
+            IamRoleLambdaExecution: {
+              DependsOn: [],
+              Properties: {
+                Policies: [],
+              },
+            },
           },
         },
         name: 'aws',
