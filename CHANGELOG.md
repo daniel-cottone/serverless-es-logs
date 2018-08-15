@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.1.0...v1.1.1) (2018-08-15)
+
+
+### Bug Fixes
+
+* **IAM:** Attaching ES policy when no default role given ([caebcc0](https://github.com/daniel-cottone/serverless-es-logs/commit/caebcc0))
+
 # [1.1.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.0.3...v1.1.0) (2018-08-05)
 
 
