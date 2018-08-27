@@ -145,9 +145,9 @@
     micromatch "^3.1.4"
     p-reduce "^1.0.0"
 
-"@semantic-release/github@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.0.2.tgz#3a3a4bb7e86fc1dc31829daf5066a232e2097e5b"
+"@semantic-release/github@5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.0.3.tgz#aa81ce120236ffbcaa6e73f4ab4fc1b2af76bda5"
   dependencies:
     "@octokit/rest" "^15.2.0"
     "@semantic-release/error" "^2.2.0"
