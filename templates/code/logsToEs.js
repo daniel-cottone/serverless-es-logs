@@ -106,7 +106,7 @@ function buildSource(message, extractedFields) {
                     source['$' + key] = JSON.parse(jsonSubString);
                 }
 
-                source[key] = value;
+                source[key] = (key === 'apigw_request_id') ? value.slice(1, value.length - 1) : value;
             }
         }
         return source;
