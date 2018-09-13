@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.1.2...v1.1.3) (2018-09-13)
+
+
+### Bug Fixes
+
+* **logsToEs:** Stripping extra parens from apigw_request_id ([b9f74b6](https://github.com/daniel-cottone/serverless-es-logs/commit/b9f74b6))
+
 ## [1.1.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.1.1...v1.1.2) (2018-09-12)
 
 
