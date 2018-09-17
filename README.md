@@ -52,6 +52,19 @@ custom:
     endpoint: some-elasticsearch-endpoint.us-east-1.es.amazonaws.com
 ```
 
+#### filterPattern
+
+(Optional) The filter pattern that the Cloudwatch subscription should use for your lambda
+functions. Default is `[timestamp=*Z, request_id="*-*", event]`. See
+[Cloudwatch filter pattern syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html)
+for more info.
+
+```yaml
+custom:
+  esLogs:
+    filterPattern: '[timestamp=*Z, request_id="*-*", event]'
+```
+
 #### includeApiGWLogs
 
 (Optional) An option to be used in conjunction with the [serverless-aws-alias](https://github.com/HyperBrain/serverless-aws-alias) plugin. This will capture logs created by API Gateway and transport them to Elasticsearch.

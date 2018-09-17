@@ -16,6 +16,8 @@ class ServerlessEsLogsPlugin {
   private custom: { [name: string]: any };
   private logProcesserDir: string = '_es-logs';
   private logProcesserName: string = 'esLogsProcesser';
+  private defaultLambdaFilterPattern: string = '[timestamp=*Z, request_id="*-*", event]';
+  private defaultApiGWFilterPattern: string = '[apigw_request_id="*-*", event]';
 
   constructor(serverless: any, options: { [name: string]: any }) {
     this.serverless = serverless;
@@ -111,7 +113,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addApiGwCloudwatchSubscription(): void {
-    const filterPattern = '[apigw_request_id="*-*", event]';
+    const filterPattern = this.defaultApiGWFilterPattern;
     const apiGatewayStageLogicalId = 'ApiGatewayStage';
     const processorAliasLogicalId = 'EsLogsProcesserAlias';
     const template = this.serverless.service.provider.compiledCloudFormationAliasTemplate;
@@ -178,7 +180,8 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLambdaCloudwatchSubscriptions(): void {
-    const filterPattern = '[timestamp=*Z, request_id="*-*", event]';
+    const { esLogs } = this.custom;
+    const filterPattern = esLogs.filterPattern || this.defaultLambdaFilterPattern;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const functions = this.serverless.service.getAllFunctions();
     const processorLogicalId = 'EsLogsProcesserLambdaFunction';
