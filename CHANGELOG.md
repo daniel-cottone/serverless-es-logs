@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.1.3...v1.2.0) (2018-09-17)
+
+
+### Features
+
+* **filterPattern:** Adding option for overriding default filter pattern ([e2065bd](https://github.com/daniel-cottone/serverless-es-logs/commit/e2065bd))
+
 ## [1.1.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.1.2...v1.1.3) (2018-09-13)
 
 
