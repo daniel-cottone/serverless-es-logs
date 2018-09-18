@@ -69,7 +69,7 @@
     "@semantic-release/changelog": "3.0.0",
     "@semantic-release/git": "7.0.4",
     "@semantic-release/github": "5.0.5",
-    "@types/chai": "4.1.4",
+    "@types/chai": "4.1.5",
     "@types/faker": "4.1.4",
     "@types/fs-extra": "5.0.4",
     "@types/lodash": "4.14.116",
