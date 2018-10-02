@@ -1,3 +1,20 @@
+# [2.0.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.2.0...v2.0.0) (2018-10-02)
+
+
+### Bug Fixes
+
+* **logsToEs:** Fixed ES '_type' attribute ([dc5b849](https://github.com/daniel-cottone/serverless-es-logs/commit/dc5b849)), closes [#65](https://github.com/daniel-cottone/serverless-es-logs/issues/65)
+
+
+### BREAKING CHANGES
+
+* **logsToEs:** The '_type' attribute is now hardcoded to
+'serverless-es-logs' instead of the name of the Cloudwatch
+log group.
+
+For any users of Elasticsearch 6.x this change will result
+in an error for the current index.
+
 # [1.2.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.1.3...v1.2.0) (2018-09-17)
 
 
