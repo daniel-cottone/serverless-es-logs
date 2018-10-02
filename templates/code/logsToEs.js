@@ -59,10 +59,12 @@ function transform(payload) {
 
     payload.logEvents.forEach(function(logEvent) {
         var timestamp = new Date(1 * logEvent.timestamp);
+        var functionName = payload.logGroup.split('/')[3];
 
-        // index name format: cwl-YYYY.MM.DD
+        // index name format: cwl-<function name>.YYYY.MM.DD
         var indexName = [
-            indexPrefix + '-' + timestamp.getUTCFullYear(),   // year
+            indexPrefix + '-' + functionName,
+            timestamp.getUTCFullYear(),                       // year
             ('0' + (timestamp.getUTCMonth() + 1)).slice(-2),  // month
             ('0' + timestamp.getUTCDate()).slice(-2)          // day
         ].join('.');
