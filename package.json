@@ -83,7 +83,7 @@
     "nyc": "13.0.1",
     "rimraf": "2.6.2",
     "semantic-release": "15.9.16",
-    "sinon": "6.3.4",
+    "sinon": "6.3.5",
     "ts-node": "7.0.1",
     "tslint": "5.11.0",
     "typescript": "3.1.1"
