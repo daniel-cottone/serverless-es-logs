@@ -80,7 +80,7 @@
     "coveralls": "3.0.2",
     "faker": "4.1.0",
     "mocha": "5.2.0",
-    "nyc": "13.0.1",
+    "nyc": "13.1.0",
     "rimraf": "2.6.2",
     "semantic-release": "15.9.17",
     "sinon": "6.3.5",
