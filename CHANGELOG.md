@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.0.0...v2.0.1) (2018-10-19)
+
+
+### Bug Fixes
+
+* **kibana:** Updating event field prefix ([ffd9af0](https://github.com/daniel-cottone/serverless-es-logs/commit/ffd9af0))
+
 # [2.0.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v1.2.0...v2.0.0) (2018-10-02)
 
 
