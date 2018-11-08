@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/daniel-cottone/serverless-es-logs.git/compare/v2.0.1...v2.0.2) (2018-11-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fs-extra to v7.0.1 ([#96](https://github.com/daniel-cottone/serverless-es-logs.git/issues/96)) ([e5218b0](https://github.com/daniel-cottone/serverless-es-logs.git/commit/e5218b0))
+
 ## [2.0.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.0.0...v2.0.1) (2018-10-19)
 
 
