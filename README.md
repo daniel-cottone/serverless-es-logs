@@ -94,6 +94,17 @@ custom:
   esLogs:
     retentionInDays: 7
 ```
+#### lambdaList
+
+(Optional) Only apply eslogs functionality to a comma separated list of lambda's
+
+```yaml
+custom:
+  esLogs:
+    lambdaList: function1,function2,etc
+```
+
+
 
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com

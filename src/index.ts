@@ -182,12 +182,13 @@ class ServerlessEsLogsPlugin {
   private addLambdaCloudwatchSubscriptions(): void {
     const { esLogs } = this.custom;
     const filterPattern = esLogs.filterPattern || this.defaultLambdaFilterPattern;
+    const lambdaList = esLogs.lambdaList || null;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const functions = this.serverless.service.getAllFunctions();
     const processorLogicalId = 'EsLogsProcesserLambdaFunction';
 
     // Add cloudwatch subscription for each function except log processer
-    functions.forEach((name: string) => {
+    functions.filter((name :string) => {return (!lambdaList || lambdaList.split(",").indexOf(name) !== -1)}).forEach((name: string) => {
       if (name === this.logProcesserName) {
         return;
       }
