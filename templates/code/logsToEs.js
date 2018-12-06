@@ -4,7 +4,11 @@ var zlib = require('zlib');
 var crypto = require('crypto');
 
 var endpoint = process.env.ES_ENDPOINT;
-var indexPrefix = process.env.INDEX_PREFIX;
+var indexPrefix = process.env.ES_INDEX_PREFIX;
+var tags = undefined;
+try {
+    tags = JSON.parse(process.env.ES_TAGS);
+} catch (_) {}
 
 exports.handler = function(input, context) {
     // decode input from base64
@@ -74,6 +78,9 @@ function transform(payload) {
         source['@owner'] = payload.owner;
         source['@log_group'] = payload.logGroup;
         source['@log_stream'] = payload.logStream;
+        if (tags) {
+            source['@tags'] = tags;
+        }
 
         var action = { "index": {} };
         action.index._index = indexName;

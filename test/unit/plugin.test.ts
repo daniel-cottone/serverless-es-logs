@@ -16,6 +16,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
         esLogs: {
           endpoint: 'some_endpoint',
           index: 'some_index',
+          tags: {},
         },
       },
     },
@@ -102,6 +103,26 @@ describe('serverless-es-logs :: Plugin tests', () => {
           expect(plugin.hooks['after:package:initialize']).to.throw(
             Error,
             'ERROR: Must define an index for serverless-es-logs!',
+          );
+        });
+
+        it('should throw an error if \'tags\' are not an object', () => {
+          const opts = {
+            service: {
+              custom: {
+                esLogs: {
+                  index: 'some_index',
+                  endpoint: 'some_endpoint',
+                  tags: 'bad_tags',
+                },
+              },
+            },
+          };
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          expect(plugin.hooks['after:package:initialize']).to.throw(
+            Error,
+            "ERROR: Tags must be an object! You provided 'bad_tags'.",
           );
         });
       });

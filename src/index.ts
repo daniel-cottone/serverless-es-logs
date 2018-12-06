@@ -102,13 +102,17 @@ class ServerlessEsLogsPlugin {
       throw new this.serverless.classes.Error(`ERROR: No configuration provided for serverless-es-logs!`);
     }
 
-    const { endpoint, index } = esLogs;
+    const { endpoint, index, tags } = esLogs;
     if (!endpoint) {
       throw new this.serverless.classes.Error(`ERROR: Must define an endpoint for serverless-es-logs!`);
     }
 
     if (!index) {
       throw new this.serverless.classes.Error(`ERROR: Must define an index for serverless-es-logs!`);
+    }
+
+    if (tags && !_.isPlainObject(tags)) {
+      throw new this.serverless.classes.Error(`ERROR: Tags must be an object! You provided '${tags}'.`);
     }
   }
 
@@ -119,6 +123,7 @@ class ServerlessEsLogsPlugin {
     const template = this.serverless.service.provider.compiledCloudFormationAliasTemplate;
 
     // Check if API Gateway stage exists
+    /* istanbul ignore else */
     if (template && template.Resources[apiGatewayStageLogicalId]) {
       const { StageName, RestApiId } = template.Resources[apiGatewayStageLogicalId].Properties;
       const subscriptionLogicalId = `${apiGatewayStageLogicalId}SubscriptionFilter`;
@@ -188,6 +193,7 @@ class ServerlessEsLogsPlugin {
 
     // Add cloudwatch subscription for each function except log processer
     functions.forEach((name: string) => {
+      /* istanbul ignore if */
       if (name === this.logProcesserName) {
         return;
       }
@@ -251,7 +257,8 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
-    const { index, endpoint } = this.custom.esLogs;
+    const { index, endpoint, tags } = this.custom.esLogs;
+    const tagsStringified = tags ? JSON.stringify(tags) : /* istanbul ignore next */ '';
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
     const handler = `${this.logProcesserDir}/index.handler`;
@@ -262,7 +269,8 @@ class ServerlessEsLogsPlugin {
       description: 'Serverless ES Logs Plugin',
       environment: {
         ES_ENDPOINT: endpoint,
-        INDEX_PREFIX: index,
+        ES_INDEX_PREFIX: index,
+        ES_TAGS: tagsStringified,
       },
       events: [],
       handler,
