@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/daniel-cottone/serverless-es-logs.git/compare/v2.0.2...v2.1.0) (2018-12-06)
+
+
+### Features
+
+* **tags:** Add option to add tags to all logs sent to ES ([dda6837](https://github.com/daniel-cottone/serverless-es-logs.git/commit/dda6837))
+
 ## [2.0.2](https://github.com/daniel-cottone/serverless-es-logs.git/compare/v2.0.1...v2.0.2) (2018-11-08)
 
 
