@@ -96,6 +96,7 @@ function transform(payload) {
 }
 
 function buildSource(message, extractedFields) {
+    var jsonSubString = null;
     if (extractedFields) {
         var source = {};
 
