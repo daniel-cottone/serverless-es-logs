@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@semantic-release/changelog": "3.0.1",
-    "@semantic-release/git": "7.0.5",
+    "@semantic-release/git": "7.0.6",
     "@semantic-release/github": "5.2.6",
     "@types/chai": "4.1.7",
     "@types/faker": "4.1.4",
