@@ -353,10 +353,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.18.tgz#1d3ca764718915584fcd9f6344621b7672665c67"
   integrity sha512-fh+pAqt4xRzPfqA6eh3Z2y6fyZavRIumvjhaCL753+TVkGKGhpPeyrJG2JftD0T9q4GF00KjefsQ+PQNDdWQaQ==
 
-"@types/sinon@7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-7.0.2.tgz#234c03dd39bfa97616b28215caea3de043c63310"
-  integrity sha512-YvJOqPk4kh1eQyxuASDD4MDK27XWAhtw6hJ7rRayEOkkTpZkqDWpDb4OjLVzFGdapOuUgZdnqO+71Q3utCJtcA==
+"@types/sinon@7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-7.0.3.tgz#f8647e883d873962130f906a6114a4e187755696"
+  integrity sha512-cjmJQLx2B5Hp9SzO7rdSivipo3kBqRqeYkTW17nLST1tn5YLWBjTdnzdmeTJXA1+KrrBLsEuvKQ0fUPGrfazQg==
 
 JSONStream@^1.0.4, JSONStream@^1.3.3:
   version "1.3.3"
