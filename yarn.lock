@@ -185,10 +185,10 @@
   resolved "https://registry.yarnpkg.com/@semantic-release/error/-/error-2.2.0.tgz#ee9d5a09c9969eade1ec864776aeda5c5cddbbf0"
   integrity sha512-9Tj/qn+y2j+sjCI3Jd+qseGtHjOAeg7dU2/lVcqIQ9TV3QDaDXDYXcoOHU+7o2Hwh8L8ymL4gfuO7KxDs3q2zg==
 
-"@semantic-release/git@7.0.7":
-  version "7.0.7"
-  resolved "https://registry.yarnpkg.com/@semantic-release/git/-/git-7.0.7.tgz#75936f81735e223b211f86d878b9c1f3ddf4ea97"
-  integrity sha512-rXjHxZWFC8QpIhSrPSkq8e9qtb7raJ2AGqhK5fp8UY168Ie/2qta7R0d4cfi2ZOCc8yRU3o4QUJcTol+g4C0kw==
+"@semantic-release/git@7.0.8":
+  version "7.0.8"
+  resolved "https://registry.yarnpkg.com/@semantic-release/git/-/git-7.0.8.tgz#b9e1af094a19d4e96974b90a969ad0e6782c8727"
+  integrity sha512-sA+XoPU6GrV+A4YswO0b5JWL1KbzmyyaqUK6Y2poDkIVPlj+oQdi/stpKz/bKF5z9ChMGP87OVPMeUyXGaNFtw==
   dependencies:
     "@semantic-release/error" "^2.1.0"
     aggregate-error "^2.0.0"
@@ -196,7 +196,7 @@
     dir-glob "^2.0.0"
     execa "^1.0.0"
     fs-extra "^7.0.0"
-    globby "^8.0.1"
+    globby "^9.0.0"
     lodash "^4.17.4"
     micromatch "^3.1.4"
     p-reduce "^1.0.0"
@@ -2077,7 +2077,7 @@ globals@^11.1.0:
   resolved "https://registry.yarnpkg.com/globals/-/globals-11.7.0.tgz#a583faa43055b1aca771914bf68258e2fc125673"
   integrity sha512-K8BNSPySfeShBQXsahYB/AbbWruVOTyVpgoIDnl8odPpeSfP2J5QO2oLFFdl2j7GfDCtZj2bMKar2T49itTPCg==
 
-globby@^8.0.0, globby@^8.0.1:
+globby@^8.0.0:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/globby/-/globby-8.0.1.tgz#b5ad48b8aa80b35b814fc1281ecc851f1d2b5b50"
   integrity sha512-oMrYrJERnKBLXNLVTqhm3vPEdJ/b2ZE28xN4YARiix1NOIOBPEpOUnm844K1iu/BkphCaf2WNFwMszv8Soi1pw==
