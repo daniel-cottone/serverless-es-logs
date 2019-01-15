@@ -116,9 +116,8 @@ class ServerlessEsLogsPlugin {
     }
 
     if (logErrorContent && !_.isBoolean(logErrorContent)) {
-      throw new this.serverless.classes.Error(
-        `ERROR: LogErrorContent must be a boolean! You provided '${logErrorContent}'.`
-      );
+      const error: string = `ERROR: LogErrorContent must be a boolean! You provided '${logErrorContent}'.`;
+      throw new this.serverless.classes.Error(error);
     }
   }
 
