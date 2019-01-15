@@ -47,8 +47,8 @@ exports.handler = function(input, context) {
                     console.log("Failed Items: " +
                         JSON.stringify(failedItems, null, 2));
 
-                    var failedLogs = findFailedItems(failedItems, elasticsearchBulkArray);
                     if (logErrorContent) {
+                        var failedLogs = findFailedLogs(failedItems, elasticsearchBulkArray);
                         failedLogs.forEach( failedLog => {
                             console.log("Failed log content: " + JSON.stringify(failedLog, null, 2));
                         });
@@ -64,7 +64,7 @@ exports.handler = function(input, context) {
     });
 };
 
-function findFailedItems(failedItems, esBulkArray) {
+function findFailedLogs(failedItems, esBulkArray) {
     var failedLogs = [];
 
     failedItems.forEach(item => {
