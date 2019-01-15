@@ -116,7 +116,9 @@ class ServerlessEsLogsPlugin {
     }
 
     if (logErrorContent && !_.isBoolean(logErrorContent)) {
-      throw new this.serverless.classes.Error(`ERROR: LogErrorContent must be a boolean! You provided '${logErrorContent}'.`);
+      throw new this.serverless.classes.Error(
+        `ERROR: LogErrorContent must be a boolean! You provided '${logErrorContent}'.`
+      );
     }
   }
 
@@ -274,8 +276,8 @@ class ServerlessEsLogsPlugin {
       environment: {
         ES_ENDPOINT: endpoint,
         ES_INDEX_PREFIX: index,
+        ES_LOG_ERROR_CONTENT: logErrorContent,
         ES_TAGS: tagsStringified,
-        ES_LOG_ERROR_CONTENT: logErrorContent
       },
       events: [],
       handler,
