@@ -22,18 +22,20 @@ exports.handler = function(input, context) {
         // parse the input from JSON
         var awslogsData = JSON.parse(buffer.toString('utf8'));
 
-        // transform the input to Elasticsearch documents
-        var elasticsearchBulkData = transform(awslogsData);
+        // transform the input to Elasticsearch documents array
+        var elasticsearchBulkArray = transform(awslogsData);
 
         // skip control messages
-        if (!elasticsearchBulkData) {
+        if (!elasticsearchBulkArray) {
             console.log('Received a control message');
             context.succeed('Control message handled successfully');
             return;
         }
 
+        var elasticsearchBulkPayload = esDocumentArrayToPayload(elasticsearchBulkArray);
+
         // post documents to the Amazon Elasticsearch Service
-        post(elasticsearchBulkData, function(error, success, statusCode, failedItems) {
+        post(elasticsearchBulkPayload, function(error, success, statusCode, failedItems) {
             console.log('Response: ' + JSON.stringify({ 
                 "statusCode": statusCode 
             }));
@@ -44,10 +46,13 @@ exports.handler = function(input, context) {
                 if (failedItems && failedItems.length > 0) {
                     console.log("Failed Items: " +
                         JSON.stringify(failedItems, null, 2));
-                }
 
-                if (logErrorContent) {
-                    console.log("Failed log content: " + JSON.stringify(elasticsearchBulkData, null, 2));
+                    var failedLogs = findFailedItems(failedItems, elasticsearchBulkArray);
+                    if (logErrorContent) {
+                        failedLogs.forEach( failedLog => {
+                            console.log("Failed log content: " + JSON.stringify(failedLog, null, 2));
+                        });
+                    }
                 }
 
                 context.fail(JSON.stringify(error));
@@ -59,12 +64,39 @@ exports.handler = function(input, context) {
     });
 };
 
+function findFailedItems(failedItems, esBulkArray) {
+    var failedLogs = [];
+
+    failedItems.forEach(item => {
+        var _id = item && item.index && item.index._id;
+        if (_id) {
+            var failedLog = esBulkArray.find(esLog => esLog && esLog.id === _id);
+            if (failedLog) {
+                failedLogs.push(failedLog);
+            }
+        }
+    });
+
+    return failedLogs;
+}
+
+function esDocumentArrayToPayload(esDocumentArray) {
+    return esDocumentArray.map(
+        item => {
+            return [
+                JSON.stringify(item.action),
+                JSON.stringify(item.source)
+            ].join('\n');
+        }
+    ).join('\n') + '\n';
+}
+
 function transform(payload) {
     if (payload.messageType === 'CONTROL_MESSAGE') {
         return null;
     }
 
-    var bulkRequestBody = '';
+    var bulkRequest = [];
 
     payload.logEvents.forEach(function(logEvent) {
         var timestamp = new Date(1 * logEvent.timestamp);
@@ -76,8 +108,10 @@ function transform(payload) {
             ('0' + timestamp.getUTCDate()).slice(-2)          // day
         ].join('.');
 
+        var id = logEvent.id;
+
         var source = buildSource(logEvent.message, logEvent.extractedFields);
-        source['@id'] = logEvent.id;
+        source['@id'] = id;
         source['@timestamp'] = new Date(1 * logEvent.timestamp).toISOString();
         source['@message'] = logEvent.message;
         source['@owner'] = payload.owner;
@@ -90,14 +124,11 @@ function transform(payload) {
         var action = { "index": {} };
         action.index._index = indexName;
         action.index._type = 'serverless-es-logs';
-        action.index._id = logEvent.id;
+        action.index._id = id;
         
-        bulkRequestBody += [ 
-            JSON.stringify(action), 
-            JSON.stringify(source),
-        ].join('\n') + '\n';
+        bulkRequest.push({ id, action, source });
     });
-    return bulkRequestBody;
+    return bulkRequest;
 }
 
 function buildSource(message, extractedFields) {
