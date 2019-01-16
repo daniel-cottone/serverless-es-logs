@@ -9,7 +9,6 @@ var tags = undefined;
 try {
     tags = JSON.parse(process.env.ES_TAGS);
 } catch (_) {}
-var logErrorContent = process.env.ES_LOG_ERROR_CONTENT;
 
 exports.handler = function(input, context) {
     // decode input from base64
@@ -47,12 +46,10 @@ exports.handler = function(input, context) {
                     console.log("Failed Items: " +
                         JSON.stringify(failedItems, null, 2));
 
-                    if (logErrorContent) {
-                        var failedLogs = findFailedLogs(failedItems, elasticsearchBulkArray);
-                        failedLogs.forEach( failedLog => {
-                            console.log("Failed log content: " + JSON.stringify(failedLog, null, 2));
-                        });
-                    }
+                    var failedLogs = findFailedLogs(failedItems, elasticsearchBulkArray);
+                    failedLogs.forEach( failedLog => {
+                        console.log("Failed log content: " + JSON.stringify(failedLog, null, 2));
+                    });
                 }
 
                 context.fail(JSON.stringify(error));

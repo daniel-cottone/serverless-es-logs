@@ -126,27 +126,6 @@ describe('serverless-es-logs :: Plugin tests', () => {
             "ERROR: Tags must be an object! You provided 'bad_tags'.",
           );
         });
-
-        it('should throw an error if \'logErrorContent\' is not a boolean', () => {
-          const opts = {
-            service: {
-              custom: {
-                esLogs: {
-                  index: 'some_index',
-                  endpoint: 'some_endpoint',
-                  tags: {},
-                  logErrorContent: 'bad_log_error_content'
-                },
-              },
-            },
-          };
-          serverless = new ServerlessBuilder(opts).build();
-          plugin = new ServerlessEsLogsPlugin(serverless, options);
-          expect(plugin.hooks['after:package:initialize']).to.throw(
-            Error,
-            "ERROR: LogErrorContent must be a boolean! You provided 'bad_log_error_content'.",
-          );
-        });
       });
 
       describe('#addLogProcesser()', () => {

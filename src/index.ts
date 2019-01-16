@@ -102,7 +102,7 @@ class ServerlessEsLogsPlugin {
       throw new this.serverless.classes.Error(`ERROR: No configuration provided for serverless-es-logs!`);
     }
 
-    const { endpoint, index, tags, logErrorContent } = esLogs;
+    const { endpoint, index, tags } = esLogs;
     if (!endpoint) {
       throw new this.serverless.classes.Error(`ERROR: Must define an endpoint for serverless-es-logs!`);
     }
@@ -113,11 +113,6 @@ class ServerlessEsLogsPlugin {
 
     if (tags && !_.isPlainObject(tags)) {
       throw new this.serverless.classes.Error(`ERROR: Tags must be an object! You provided '${tags}'.`);
-    }
-
-    if (logErrorContent && !_.isBoolean(logErrorContent)) {
-      const error: string = `ERROR: LogErrorContent must be a boolean! You provided '${logErrorContent}'.`;
-      throw new this.serverless.classes.Error(error);
     }
   }
 
@@ -262,7 +257,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
-    const { index, endpoint, tags, logErrorContent } = this.custom.esLogs;
+    const { index, endpoint, tags } = this.custom.esLogs;
     const tagsStringified = tags ? JSON.stringify(tags) : /* istanbul ignore next */ '';
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
@@ -275,7 +270,6 @@ class ServerlessEsLogsPlugin {
       environment: {
         ES_ENDPOINT: endpoint,
         ES_INDEX_PREFIX: index,
-        ES_LOG_ERROR_CONTENT: logErrorContent,
         ES_TAGS: tagsStringified,
       },
       events: [],

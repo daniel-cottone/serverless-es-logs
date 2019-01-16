@@ -107,16 +107,6 @@ custom:
       some_other_tag: something_else
 ```
 
-#### logErrorContent
-
-(Optional) Whether this plugin should log the original log content when an error occurs posting to elasticsearch.
-
-```yaml
-custom:
-  esLogs:
-    logErrorContent: true
-```
-
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg
