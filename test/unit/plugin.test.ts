@@ -17,7 +17,6 @@ describe('serverless-es-logs :: Plugin tests', () => {
           endpoint: 'some_endpoint',
           index: 'some_index',
           tags: {},
-          logErrorContent: false,
         },
       },
     },
