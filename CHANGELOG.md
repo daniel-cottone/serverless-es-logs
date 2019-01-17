@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/daniel-cottone/serverless-es-logs.git/compare/v2.1.0...v2.2.0) (2019-01-17)
+
+
+### Features
+
+* **logErrorContent:** log original log content when error occurs ([#144](https://github.com/daniel-cottone/serverless-es-logs.git/issues/144)) ([0784d6e](https://github.com/daniel-cottone/serverless-es-logs.git/commit/0784d6e))
+
 # [2.1.0](https://github.com/daniel-cottone/serverless-es-logs.git/compare/v2.0.2...v2.1.0) (2018-12-06)
 
 
