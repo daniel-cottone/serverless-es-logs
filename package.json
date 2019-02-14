@@ -75,7 +75,7 @@
     "@types/lodash": "4.14.121",
     "@types/mocha": "5.2.6",
     "@types/node": "10.12.26",
-    "@types/sinon": "7.0.5",
+    "@types/sinon": "7.0.6",
     "chai": "4.2.0",
     "coveralls": "3.0.2",
     "faker": "4.1.0",
