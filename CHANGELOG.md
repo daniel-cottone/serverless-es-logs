@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.2.0...v2.2.1) (2019-02-22)
+
+
+### Bug Fixes
+
+* **deps:** Upgrading dependencies in lockfile ([#173](https://github.com/daniel-cottone/serverless-es-logs/issues/173)) ([004a753](https://github.com/daniel-cottone/serverless-es-logs/commit/004a753))
+
 # [2.2.0](https://github.com/daniel-cottone/serverless-es-logs.git/compare/v2.1.0...v2.2.0) (2019-01-17)
 
 
