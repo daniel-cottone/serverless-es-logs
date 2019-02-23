@@ -77,7 +77,7 @@
     "@types/node": "10.12.27",
     "@types/sinon": "7.0.6",
     "chai": "4.2.0",
-    "coveralls": "3.0.2",
+    "coveralls": "3.0.3",
     "faker": "4.1.0",
     "mocha": "5.2.0",
     "nyc": "13.3.0",
