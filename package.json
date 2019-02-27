@@ -75,7 +75,7 @@
     "@types/lodash": "4.14.121",
     "@types/mocha": "5.2.6",
     "@types/node": "10.12.27",
-    "@types/sinon": "7.0.6",
+    "@types/sinon": "7.0.7",
     "chai": "4.2.0",
     "coveralls": "3.0.3",
     "faker": "4.1.0",
@@ -83,7 +83,7 @@
     "nyc": "13.3.0",
     "rimraf": "2.6.3",
     "semantic-release": "15.13.3",
-    "sinon": "7.2.4",
+    "sinon": "7.2.5",
     "ts-node": "8.0.2",
     "tslint": "5.13.0",
     "typescript": "3.3.3333"
