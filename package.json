@@ -74,7 +74,7 @@
     "@types/fs-extra": "5.0.5",
     "@types/lodash": "4.14.123",
     "@types/mocha": "5.2.6",
-    "@types/node": "10.12.30",
+    "@types/node": "10.14.1",
     "@types/sinon": "7.0.9",
     "chai": "4.2.0",
     "coveralls": "3.0.3",
