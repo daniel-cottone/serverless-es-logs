@@ -150,22 +150,22 @@ describe('serverless-es-logs :: Plugin tests', () => {
       });
     });
 
-    describe('aws:package:finalize:mergeCustomProviderResources', () => {
+    describe('after:aws:package:finalize:mergeCustomProviderResources', () => {
       it('should exist', () => {
-        expect(plugin.hooks['aws:package:finalize:mergeCustomProviderResources']).to.exist;
+        expect(plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']).to.exist;
       });
 
       it('should create an IAM role for the log processer function if default role specified', () => {
         serverless.service.provider.role = random.word();
         plugin = new ServerlessEsLogsPlugin(serverless, options); 
         const template = serverless.service.provider.compiledCloudFormationTemplate;
-        plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+        plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
         expect(template.Resources).to.have.property('ServerlessEsLogsLambdaIAMRole');
       });
 
       it('should append ES policy to generated role if no default role specified', () => {
         const template = serverless.service.provider.compiledCloudFormationTemplate;
-        plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+        plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
         expect(template.Resources).to.have.property('IamRoleLambdaExecution');
         expect(template.Resources.IamRoleLambdaExecution.Properties.Policies).to.have.deep.members([{
           PolicyDocument: {
@@ -193,10 +193,51 @@ describe('serverless-es-logs :: Plugin tests', () => {
         }]);
       });
 
+      describe('#addApiGwCloudwatchSubscription()', () => {
+        it('should skip if \'includeApiGWLogs\' option not set', () => {
+          const template = serverless.service.provider.compiledCloudFormationAliasTemplate;
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
+          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
+          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
+          expect(subscriptions.length).to.equal(0);
+          expect(permissions.length).to.equal(0);
+        });
+
+        it('should create a subscription and permission for API Gateway logs', () => {
+          serverless.service.custom.esLogs.includeApiGWLogs = true;
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          const template = serverless.service.provider.compiledCloudFormationAliasTemplate;
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
+          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
+          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
+          expect(subscriptions.length).to.equal(1);
+          expect(permissions.length).to.equal(1);
+        });
+
+        it('should create a subscription and permission for API Gateway logs in there is no alias', () => {
+          serverless.service.custom.esLogs.includeApiGWLogs = true;
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          serverless.service.provider['compiledCloudFormationAliasTemplate'] = undefined;
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          template.Resources['ApiGatewayStage'] = {
+            Properties: {
+              RestApiId: 'restApiId',
+              StageName: 'stageName',
+            },
+          };
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
+          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
+          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
+          expect(subscriptions.length).to.equal(1);
+          expect(permissions.length).to.equal(1);
+        });
+
+      });
+ 
       describe('#addCloudwatchSubscriptions()', () => {
         it('shouldn\'t add any subscriptions or permissions if there are no functions', () => {
           const template = serverless.service.provider.compiledCloudFormationTemplate;
-          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
           const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
           const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
           expect(subscriptions.length).to.equal(0);
@@ -207,7 +248,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
           const numFunctions = random.number({ min: 1, max: 5 });
           addFunctions(numFunctions);
           const template = serverless.service.provider.compiledCloudFormationTemplate;
-          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
           const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
           const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
           expect(subscriptions.length).to.equal(numFunctions);
@@ -220,7 +261,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
           const numFunctions = random.number({ min: 1, max: 5 });
           addFunctions(numFunctions);
           const template = serverless.service.provider.compiledCloudFormationTemplate;
-          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
           const logGroups = _.filter(template.Resources, (v, k) => {
             return v.Type === 'AWS::Logs::LogGroup' && v.Properties.RetentionInDays !== undefined;
           });
@@ -232,39 +273,11 @@ describe('serverless-es-logs :: Plugin tests', () => {
           const numFunctions = random.number({ min: 1, max: 5 });
           addFunctions(numFunctions);
           const template = serverless.service.provider.compiledCloudFormationTemplate;
-          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          plugin.hooks['after:aws:package:finalize:mergeCustomProviderResources']();
           const logGroups = _.filter(template.Resources, (v, k) => {
             return v.Type === 'AWS::Logs::LogGroup' && v.Properties.RetentionInDays !== undefined;
           });
           expect(logGroups.length).to.equal(numFunctions);
-        });
-      });
-    });
-
-    describe('before:aws:deploy:deploy:updateStack', () => {
-      it('should exist', () => {
-        expect(plugin.hooks['before:aws:deploy:deploy:updateStack']).to.exist;
-      });
-
-      describe('#addApiGwCloudwatchSubscription()', () => {
-        it('should skip if \'includeApiGWLogs\' option not set', () => {
-          const template = serverless.service.provider.compiledCloudFormationAliasTemplate;
-          plugin.hooks['before:aws:deploy:deploy:updateStack']();
-          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
-          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
-          expect(subscriptions.length).to.equal(0);
-          expect(permissions.length).to.equal(0);
-        });
-
-        it('should create a subscription and permission for API Gateway logs', () => {
-          serverless.service.custom.esLogs.includeApiGWLogs = true;
-          plugin = new ServerlessEsLogsPlugin(serverless, options);
-          const template = serverless.service.provider.compiledCloudFormationAliasTemplate;
-          plugin.hooks['before:aws:deploy:deploy:updateStack']();
-          const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
-          const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
-          expect(subscriptions.length).to.equal(1);
-          expect(permissions.length).to.equal(1);
         });
       });
     });

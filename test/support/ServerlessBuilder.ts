@@ -48,7 +48,9 @@ export class ServerlessBuilder {
           Resources: {
             EsLogsProcesserLambdaFunction: {
               DependsOn: [],
-              Properties: {},
+              Properties: {
+                FunctionName: 'functionName',
+              },
             },
             IamRoleLambdaExecution: {
               DependsOn: [],
