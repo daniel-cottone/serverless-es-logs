@@ -13,7 +13,6 @@ class ServerlessEsLogsPlugin {
   private provider: any;
   private serverless: any;
   private options: { [name: string]: any };
-  private custom: { [name: string]: any };
   private logProcesserDir: string = '_es-logs';
   private logProcesserName: string = 'esLogsProcesser';
   private defaultLambdaFilterPattern: string = '[timestamp=*Z, request_id="*-*", event]';
@@ -23,7 +22,6 @@ class ServerlessEsLogsPlugin {
     this.serverless = serverless;
     this.provider = serverless.getProvider('aws');
     this.options = options;
-    this.custom = serverless.service.custom || {};
     // tslint:disable:object-literal-sort-keys
     this.hooks = {
       'after:package:initialize': this.afterPackageInitialize.bind(this),
@@ -32,6 +30,12 @@ class ServerlessEsLogsPlugin {
       'before:aws:deploy:deploy:updateStack': this.beforeAwsDeployUpdateStack.bind(this),
     };
     // tslint:enable:object-literal-sort-keys
+  }
+
+  private custom(): { [name: string]: any } {
+    // Instance of custom will be replaced based on which lifecycle hooks have been evaluated
+    // always fetch a fresh instance
+    return this.serverless.service.custom || {};
   }
 
   private afterPackageCreateDeploymentArtifacts(): void {
@@ -51,7 +55,7 @@ class ServerlessEsLogsPlugin {
 
   private mergeCustomProviderResources(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
-    const { retentionInDays } = this.custom.esLogs;
+    const { retentionInDays } = this.custom().esLogs;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
@@ -77,7 +81,7 @@ class ServerlessEsLogsPlugin {
 
   private beforeAwsDeployUpdateStack(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.beforeAwsDeployUpdateStack()');
-    const { includeApiGWLogs } = this.custom.esLogs;
+    const { includeApiGWLogs } = this.custom().esLogs;
 
     // Add cloudwatch subscription for API Gateway logs
     if (includeApiGWLogs === true) {
@@ -97,7 +101,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private validatePluginOptions(): void {
-    const { esLogs } = this.custom;
+    const { esLogs } = this.custom();
     if (!esLogs) {
       throw new this.serverless.classes.Error(`ERROR: No configuration provided for serverless-es-logs!`);
     }
@@ -185,7 +189,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLambdaCloudwatchSubscriptions(): void {
-    const { esLogs } = this.custom;
+    const { esLogs } = this.custom();
     const filterPattern = esLogs.filterPattern || this.defaultLambdaFilterPattern;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const functions = this.serverless.service.getAllFunctions();
@@ -257,7 +261,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
-    const { index, endpoint, tags } = this.custom.esLogs;
+    const { index, endpoint, tags } = this.custom().esLogs;
     const tagsStringified = tags ? JSON.stringify(tags) : /* istanbul ignore next */ '';
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
