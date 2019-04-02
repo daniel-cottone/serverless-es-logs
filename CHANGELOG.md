@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.2.1...v2.2.2) (2019-04-02)
+
+
+### Bug Fixes
+
+* Ensure this.custom refers to latest version of config ([7299e3d](https://github.com/daniel-cottone/serverless-es-logs/commit/7299e3d))
+
 ## [2.2.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.2.0...v2.2.1) (2019-02-22)
 
 
