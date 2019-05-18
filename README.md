@@ -107,6 +107,20 @@ custom:
       some_other_tag: something_else
 ```
 
+#### useDefaultRole
+
+(Optional) Override role management for the log processer lambda and use the manually specified default role. Default is false.
+
+```yaml
+custom:
+  esLogs:
+    useDefaultRole: true
+
+provider:
+    name: aws
+    role: arn:aws:iam::123456789012:role/MyCustomRole
+```
+
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg

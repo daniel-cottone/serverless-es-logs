@@ -157,10 +157,20 @@ describe('serverless-es-logs :: Plugin tests', () => {
 
       it('should create an IAM role for the log processer function if default role specified', () => {
         serverless.service.provider.role = random.word();
-        plugin = new ServerlessEsLogsPlugin(serverless, options); 
+        plugin = new ServerlessEsLogsPlugin(serverless, options);
         const template = serverless.service.provider.compiledCloudFormationTemplate;
         plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
         expect(template.Resources).to.have.property('ServerlessEsLogsLambdaIAMRole');
+      });
+
+      it('should use the default role if \'useDefaultRole\' option specified', () => {
+        serverless.service.custom.esLogs.useDefaultRole = true;
+        serverless.service.provider.role = random.word();
+        plugin = new ServerlessEsLogsPlugin(serverless, options);
+        const template = serverless.service.provider.compiledCloudFormationTemplate;
+        plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+        expect(template.Resources).to.not.have.property('ServerlessEsLogsLambdaIAMRole');
+        expect(template.Resources.IamRoleLambdaExecution.Properties.Policies).to.deep.equal([]);
       });
 
       it('should append ES policy to generated role if no default role specified', () => {
@@ -186,6 +196,15 @@ describe('serverless-es-logs :: Plugin tests', () => {
                   'Fn::Sub': 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*',
                 },
               },
+              {
+                Action: [
+                  'ec2:CreateNetworkInterface',
+                  'ec2:DescribeNetworkInterfaces',
+                  'ec2:DeleteNetworkInterface',
+                ],
+                Effect: 'Allow',
+                Resource: '*',
+              }
             ],
             Version: '2012-10-17',
           },
