@@ -1,3 +1,15 @@
+# [2.3.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.2.2...v2.3.0) (2019-05-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fs-extra to v8 ([#225](https://github.com/daniel-cottone/serverless-es-logs/issues/225)) ([ea9e890](https://github.com/daniel-cottone/serverless-es-logs/commit/ea9e890))
+
+
+### Features
+
+* **useDefaultRole:** Add option to use specified default role ([a702116](https://github.com/daniel-cottone/serverless-es-logs/commit/a702116))
+
 ## [2.2.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.2.1...v2.2.2) (2019-04-02)
 
 
