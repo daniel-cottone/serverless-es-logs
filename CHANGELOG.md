@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.3.0...v2.3.1) (2019-05-19)
+
+
+### Bug Fixes
+
+* **package:** Excluding everything but dist from release ([d216fe5](https://github.com/daniel-cottone/serverless-es-logs/commit/d216fe5))
+
 # [2.3.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.2.2...v2.3.0) (2019-05-18)
 
 
