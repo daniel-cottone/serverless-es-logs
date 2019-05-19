@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.0...v3.0.1) (2019-05-19)
+
+
+### Bug Fixes
+
+* **filterPattern:** Fixing API Gateway filter pattern ([1e88822](https://github.com/daniel-cottone/serverless-es-logs/commit/1e88822))
+
 # [3.0.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.3.1...v3.0.0) (2019-05-19)
 
 
