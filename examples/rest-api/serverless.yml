@@ -1,0 +1,24 @@
+service: example-rest-api
+
+plugins:
+  - serverless-es-logs
+
+custom:
+  esLogs:
+    endpoint: ${opt:es-logs-endpoint, 'example.us-east-1.es.amazonaws.com'}
+    index: example-rest-api
+    includeApiGWLogs: true
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  logs:
+    restApi: true
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get

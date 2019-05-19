@@ -14,3 +14,4 @@ install:
 
 after_success:
   - yarn coverage
+  - yarn integration
