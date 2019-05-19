@@ -67,12 +67,17 @@ custom:
 
 #### includeApiGWLogs
 
-(Optional) An option to be used in conjunction with the [serverless-aws-alias](https://github.com/HyperBrain/serverless-aws-alias) plugin. This will capture logs created by API Gateway and transport them to Elasticsearch.
+(Optional) An option to capture logs created by API Gateway and transport them to Elasticsearch.
 
 ```yaml
 custom:
   esLogs:
     includeApiGWLogs: true
+
+provider:
+  name: aws
+  logs:
+    restApi: true
 ```
 
 #### index
@@ -117,8 +122,8 @@ custom:
     useDefaultRole: true
 
 provider:
-    name: aws
-    role: arn:aws:iam::123456789012:role/MyCustomRole
+  name: aws
+  role: arn:aws:iam::123456789012:role/MyCustomRole
 ```
 
 [sls-image]:http://public.serverless.com/badges/v3.svg

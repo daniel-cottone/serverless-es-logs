@@ -29,26 +29,18 @@ export class ServerlessBuilder {
         return Object.keys(this.serverless.service.functions);
       },
       provider: {
-        compiledCloudFormationAliasTemplate: {
+        compiledCloudFormationTemplate: {
           Resources: {
-            ApiGatewayStage: {
+            ApiGatewayLogGroup: {
               Properties: {
-                RestApiId: 'restApiId',
-                StageName: 'stageName',
+                LogGroupName: 'log-group-name',
               },
             },
-            EsLogsProcesserAlias: {
+            EsLogsProcesserLambdaFunction: {
+              DependsOn: [],
               Properties: {
                 FunctionName: 'functionName',
               },
-            },
-          },
-        },
-        compiledCloudFormationTemplate: {
-          Resources: {
-            EsLogsProcesserLambdaFunction: {
-              DependsOn: [],
-              Properties: {},
             },
             IamRoleLambdaExecution: {
               DependsOn: [],
