@@ -1,3 +1,17 @@
+# [3.0.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.3.1...v3.0.0) (2019-05-19)
+
+
+### Features
+
+* **api-gw-logging:** Support serverless native API GW logging ([#231](https://github.com/daniel-cottone/serverless-es-logs/issues/231)) ([4528fa3](https://github.com/daniel-cottone/serverless-es-logs/commit/4528fa3))
+
+
+### BREAKING CHANGES
+
+* **api-gw-logging:** Removing support for serverless-aws-alias plugin
+This plugin is not being maintained. Furthermore, API Gateway logging
+is now supported in serverless framework.
+
 ## [2.3.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v2.3.0...v2.3.1) (2019-05-19)
 
 
