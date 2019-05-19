@@ -16,6 +16,9 @@
     "node": ">=6.10.0"
   },
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "compile": "tsc",
     "compile:clean": "rimraf dist",
