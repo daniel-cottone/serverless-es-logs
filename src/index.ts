@@ -15,6 +15,7 @@ class ServerlessEsLogsPlugin {
   private options: { [name: string]: any };
   private logProcesserDir: string = '_es-logs';
   private logProcesserName: string = 'esLogsProcesser';
+  private logProcesserLogicalId: string;
   private defaultLambdaFilterPattern: string = '[timestamp=*Z, request_id="*-*", event]';
   private defaultApiGWFilterPattern: string = '[apigw_request_id="*-*", event]';
 
@@ -22,12 +23,13 @@ class ServerlessEsLogsPlugin {
     this.serverless = serverless;
     this.provider = serverless.getProvider('aws');
     this.options = options;
+    const normalizedName = this.provider.naming.getNormalizedFunctionName(this.logProcesserName);
+    this.logProcesserLogicalId = `${normalizedName}LambdaFunction`;
     // tslint:disable:object-literal-sort-keys
     this.hooks = {
       'after:package:initialize': this.afterPackageInitialize.bind(this),
       'after:package:createDeploymentArtifacts': this.afterPackageCreateDeploymentArtifacts.bind(this),
       'aws:package:finalize:mergeCustomProviderResources': this.mergeCustomProviderResources.bind(this),
-      'before:aws:deploy:deploy:updateStack': this.beforeAwsDeployUpdateStack.bind(this),
     };
     // tslint:enable:object-literal-sort-keys
   }
@@ -55,7 +57,7 @@ class ServerlessEsLogsPlugin {
 
   private mergeCustomProviderResources(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
-    const { retentionInDays, useDefaultRole } = this.custom().esLogs;
+    const { includeApiGWLogs, retentionInDays, useDefaultRole } = this.custom().esLogs;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
@@ -77,11 +79,6 @@ class ServerlessEsLogsPlugin {
       );
       template.Resources.IamRoleLambdaExecution.Properties.Policies = updatedPolicies;
     }
-  }
-
-  private beforeAwsDeployUpdateStack(): void {
-    this.serverless.cli.log('ServerlessEsLogsPlugin.beforeAwsDeployUpdateStack()');
-    const { includeApiGWLogs } = this.custom().esLogs;
 
     // Add cloudwatch subscription for API Gateway logs
     if (includeApiGWLogs === true) {
@@ -122,17 +119,16 @@ class ServerlessEsLogsPlugin {
 
   private addApiGwCloudwatchSubscription(): void {
     const filterPattern = this.defaultApiGWFilterPattern;
-    const apiGatewayStageLogicalId = 'ApiGatewayStage';
-    const processorAliasLogicalId = 'EsLogsProcesserAlias';
-    const template = this.serverless.service.provider.compiledCloudFormationAliasTemplate;
+    const apiGwLogGroupLogicalId = 'ApiGatewayLogGroup';
+    const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
-    // Check if API Gateway stage exists
+    // Check if API Gateway log group exists
     /* istanbul ignore else */
-    if (template && template.Resources[apiGatewayStageLogicalId]) {
-      const { StageName, RestApiId } = template.Resources[apiGatewayStageLogicalId].Properties;
-      const subscriptionLogicalId = `${apiGatewayStageLogicalId}SubscriptionFilter`;
-      const permissionLogicalId = `${apiGatewayStageLogicalId}CWPermission`;
-      const processorFunctionName = template.Resources[processorAliasLogicalId].Properties.FunctionName;
+    if (template && template.Resources[apiGwLogGroupLogicalId]) {
+      const { LogGroupName } = template.Resources[apiGwLogGroupLogicalId].Properties;
+      const subscriptionLogicalId = `${apiGwLogGroupLogicalId}SubscriptionFilter`;
+      const permissionLogicalId = `${apiGwLogGroupLogicalId}CWPermission`;
+      const processorFunctionName = template.Resources[this.logProcesserLogicalId].Properties.FunctionName;
 
       // Create permission for subscription filter
       const permission = new LambdaPermissionBuilder()
@@ -152,30 +148,26 @@ class ServerlessEsLogsPlugin {
               {
                 Ref: 'AWS::AccountId',
               },
-              ':log-group:API-Gateway-Execution-Logs_',
-              RestApiId,
-              '/*',
+              ':log-group:',
+              LogGroupName,
+              '*',
             ],
           ],
         })
-        .withDependsOn([ processorAliasLogicalId, apiGatewayStageLogicalId ])
+        .withDependsOn([ this.logProcesserLogicalId, apiGwLogGroupLogicalId ])
         .build();
 
       // Create subscription filter
       const subscriptionFilter = new SubscriptionFilterBuilder()
-        .withDestinationArn(processorFunctionName)
-        .withFilterPattern(filterPattern)
-        .withLogGroupName({
-          'Fn::Join': [
-            '',
-            [
-              'API-Gateway-Execution-Logs_',
-              RestApiId,
-              `/${StageName}`,
-            ],
+        .withDestinationArn({
+          'Fn::GetAtt': [
+            this.logProcesserLogicalId,
+            'Arn',
           ],
         })
-        .withDependsOn([ processorAliasLogicalId, permissionLogicalId ])
+        .withFilterPattern(filterPattern)
+        .withLogGroupName(LogGroupName)
+        .withDependsOn([ this.logProcesserLogicalId, permissionLogicalId ])
         .build();
 
       // Create subscription template
@@ -193,7 +185,6 @@ class ServerlessEsLogsPlugin {
     const filterPattern = esLogs.filterPattern || this.defaultLambdaFilterPattern;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
     const functions = this.serverless.service.getAllFunctions();
-    const processorLogicalId = 'EsLogsProcesserLambdaFunction';
 
     // Add cloudwatch subscription for each function except log processer
     functions.forEach((name: string) => {
@@ -212,7 +203,7 @@ class ServerlessEsLogsPlugin {
       const permission = new LambdaPermissionBuilder()
         .withFunctionName({
           'Fn::GetAtt': [
-            processorLogicalId,
+            this.logProcesserLogicalId,
             'Arn',
           ],
         })
@@ -225,20 +216,20 @@ class ServerlessEsLogsPlugin {
             'Arn',
           ],
         })
-        .withDependsOn([ processorLogicalId, logGroupLogicalId ])
+        .withDependsOn([ this.logProcesserLogicalId, logGroupLogicalId ])
         .build();
 
       // Create subscription filter
       const subscriptionFilter = new SubscriptionFilterBuilder()
         .withDestinationArn({
           'Fn::GetAtt': [
-            processorLogicalId,
+            this.logProcesserLogicalId,
             'Arn',
           ],
         })
         .withFilterPattern(filterPattern)
         .withLogGroupName(logGroupName)
-        .withDependsOn([ processorLogicalId, permissionLogicalId ])
+        .withDependsOn([ this.logProcesserLogicalId, permissionLogicalId ])
         .build();
 
       // Create subscription template
@@ -292,13 +283,11 @@ class ServerlessEsLogsPlugin {
   }
 
   private patchLogProcesserRole(): void {
-    const normalizedFunctionName = this.provider.naming.getNormalizedFunctionName(this.logProcesserName);
-    const templateKey = `${normalizedFunctionName}LambdaFunction`;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Update lambda dependencies
-    template.Resources[templateKey].DependsOn.push('ServerlessEsLogsLambdaIAMRole');
-    template.Resources[templateKey].Properties.Role = {
+    template.Resources[this.logProcesserLogicalId].DependsOn.push('ServerlessEsLogsLambdaIAMRole');
+    template.Resources[this.logProcesserLogicalId].Properties.Role = {
       'Fn::GetAtt': [
         'ServerlessEsLogsLambdaIAMRole',
         'Arn',

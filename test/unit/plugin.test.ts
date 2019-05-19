@@ -212,7 +212,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
         }]);
       });
 
-      describe('#addCloudwatchSubscriptions()', () => {
+      describe('#addLambdaCloudwatchSubscriptions()', () => {
         it('shouldn\'t add any subscriptions or permissions if there are no functions', () => {
           const template = serverless.service.provider.compiledCloudFormationTemplate;
           plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
@@ -258,17 +258,11 @@ describe('serverless-es-logs :: Plugin tests', () => {
           expect(logGroups.length).to.equal(numFunctions);
         });
       });
-    });
-
-    describe('before:aws:deploy:deploy:updateStack', () => {
-      it('should exist', () => {
-        expect(plugin.hooks['before:aws:deploy:deploy:updateStack']).to.exist;
-      });
 
       describe('#addApiGwCloudwatchSubscription()', () => {
         it('should skip if \'includeApiGWLogs\' option not set', () => {
-          const template = serverless.service.provider.compiledCloudFormationAliasTemplate;
-          plugin.hooks['before:aws:deploy:deploy:updateStack']();
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
           const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
           const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
           expect(subscriptions.length).to.equal(0);
@@ -278,8 +272,8 @@ describe('serverless-es-logs :: Plugin tests', () => {
         it('should create a subscription and permission for API Gateway logs', () => {
           serverless.service.custom.esLogs.includeApiGWLogs = true;
           plugin = new ServerlessEsLogsPlugin(serverless, options);
-          const template = serverless.service.provider.compiledCloudFormationAliasTemplate;
-          plugin.hooks['before:aws:deploy:deploy:updateStack']();
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
           const subscriptions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Logs::SubscriptionFilter');
           const permissions = _.filter(template.Resources, (v, k) => v.Type === 'AWS::Lambda::Permission');
           expect(subscriptions.length).to.equal(1);
