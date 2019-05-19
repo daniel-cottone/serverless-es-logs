@@ -10,8 +10,12 @@ env:
 
 install:
   - travis_retry yarn
+  - yarn global add serverless@SERVERLESS_VERSION
+
+script:
   - yarn lint
+  - yarn test
+  - yarn integration
 
 after_success:
   - yarn coverage
-  - yarn integration
