@@ -24,6 +24,7 @@
     "compile:clean": "rimraf dist",
     "compile:watch": "tsc -w",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "integration": "./scripts/integration-test.sh",
     "lint": "tslint --project . --format stylish",
     "prepublish": "yarn compile:clean && yarn compile",
     "release": "semantic-release",
