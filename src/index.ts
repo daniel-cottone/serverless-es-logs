@@ -17,7 +17,7 @@ class ServerlessEsLogsPlugin {
   private logProcesserName: string = 'esLogsProcesser';
   private logProcesserLogicalId: string;
   private defaultLambdaFilterPattern: string = '[timestamp=*Z, request_id="*-*", event]';
-  private defaultApiGWFilterPattern: string = '[apigw_request_id="*-*", event]';
+  private defaultApiGWFilterPattern: string = '[event]';
 
   constructor(serverless: any, options: { [name: string]: any }) {
     this.serverless = serverless;
