@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.1...v3.0.2) (2019-05-23)
+
+
+### Bug Fixes
+
+* **package.json:** Adding templates to package dist ([3e30a9d](https://github.com/daniel-cottone/serverless-es-logs/commit/3e30a9d))
+
 ## [3.0.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.0...v3.0.1) (2019-05-19)
 
 
