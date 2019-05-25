@@ -80,7 +80,7 @@
     "@types/lodash": "4.14.132",
     "@types/mocha": "5.2.6",
     "@types/node": "10.14.7",
-    "@types/sinon": "7.0.11",
+    "@types/sinon": "7.0.12",
     "chai": "4.2.0",
     "coveralls": "3.0.3",
     "faker": "4.1.0",
