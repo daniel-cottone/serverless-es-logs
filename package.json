@@ -87,7 +87,7 @@
     "mocha": "6.1.4",
     "nyc": "14.1.1",
     "rimraf": "2.6.3",
-    "semantic-release": "15.13.16",
+    "semantic-release": "15.13.17",
     "sinon": "7.3.2",
     "ts-node": "8.3.0",
     "tslint": "5.17.0",
