@@ -275,19 +275,19 @@
     micromatch "^4.0.0"
     p-reduce "^2.0.0"
 
-"@semantic-release/github@5.4.0":
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.4.0.tgz#b170d1ceb3f682604cb4a2aff39bf5906159c91d"
-  integrity sha512-qtaV/8xIu2a8jt6lACFps0gVDfJby1h7Ra5On3VF60PkrKft87ru9sywAl9gtTfSfOyUlFaNCNlf3mvDaekpzQ==
+"@semantic-release/github@5.4.2":
+  version "5.4.2"
+  resolved "https://registry.yarnpkg.com/@semantic-release/github/-/github-5.4.2.tgz#1dbde876228c03ff9a000893a18aff5c6ab2cd61"
+  integrity sha512-8gkOa5tED/+sjAPwZRYsLaGr6VuAGLZinSvLsuF9/l4qLeYV8gvj7fhjFJepGu6y31t7PR2J9SWzmsqsBAyyKQ==
   dependencies:
     "@octokit/rest" "^16.27.0"
     "@semantic-release/error" "^2.2.0"
     aggregate-error "^3.0.0"
     bottleneck "^2.18.1"
     debug "^4.0.0"
-    dir-glob "^2.0.0"
+    dir-glob "^3.0.0"
     fs-extra "^8.0.0"
-    globby "^9.0.0"
+    globby "^10.0.0"
     http-proxy-agent "^2.1.0"
     https-proxy-agent "^2.2.1"
     issue-parser "^4.0.0"
