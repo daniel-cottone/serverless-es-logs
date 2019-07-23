@@ -84,7 +84,7 @@
     "chai": "4.2.0",
     "coveralls": "3.0.5",
     "faker": "4.1.0",
-    "mocha": "6.1.4",
+    "mocha": "6.2.0",
     "nyc": "14.1.1",
     "rimraf": "2.6.3",
     "semantic-release": "15.13.18",
