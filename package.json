@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "fs-extra": "8.1.0",
-    "lodash": "4.17.14"
+    "lodash": "4.17.15"
   },
   "devDependencies": {
     "@semantic-release/changelog": "3.0.4",
