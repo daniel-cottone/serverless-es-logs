@@ -1,3 +1,12 @@
+## [3.0.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.2...v3.0.3) (2019-08-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fs-extra to v8.1.0 ([#257](https://github.com/daniel-cottone/serverless-es-logs/issues/257)) ([b796ade](https://github.com/daniel-cottone/serverless-es-logs/commit/b796ade))
+* **deps:** update dependency lodash to v4.17.14 ([#263](https://github.com/daniel-cottone/serverless-es-logs/issues/263)) ([d3b1f3d](https://github.com/daniel-cottone/serverless-es-logs/commit/d3b1f3d))
+* **deps:** update dependency lodash to v4.17.15 ([#267](https://github.com/daniel-cottone/serverless-es-logs/issues/267)) ([1523f1a](https://github.com/daniel-cottone/serverless-es-logs/commit/1523f1a))
+
 ## [3.0.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.1...v3.0.2) (2019-05-23)
 
 
