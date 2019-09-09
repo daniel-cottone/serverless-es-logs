@@ -6,8 +6,8 @@ import { LambdaPermissionBuilder, SubscriptionFilterBuilder, TemplateBuilder } f
 
 // tslint:disable:no-var-requires
 const iamLambdaTemplate = require('../templates/iam/lambda-role.json');
-// tslint:enable:no-var-requires
 const withXrayTracingPermissions = require('../templates/iam/withXrayTracingPermissions.js');
+// tslint:enable:no-var-requires
 
 class ServerlessEsLogsPlugin {
   public hooks: { [name: string]: () => void };
