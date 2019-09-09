@@ -126,6 +126,20 @@ provider:
   role: arn:aws:iam::123456789012:role/MyCustomRole
 ```
 
+#### xrayTracingPermissions
+
+(Optional) Adds AWS Xray writing permissions to the processor lambda. You will need these if you enable tracing for ApiGateway on your service. 
+
+```yaml
+custom:
+  esLogs:
+    xrayTracingPermissions: true
+
+provider:
+  tracing:
+    apiGateway: true
+```
+
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg
