@@ -7,6 +7,7 @@ import { LambdaPermissionBuilder, SubscriptionFilterBuilder, TemplateBuilder } f
 // tslint:disable:no-var-requires
 const iamLambdaTemplate = require('../templates/iam/lambda-role.json');
 // tslint:enable:no-var-requires
+const withXrayTracingPermissions = require('../templates/iam/withXrayTracingPermissions.js');
 
 class ServerlessEsLogsPlugin {
   public hooks: { [name: string]: () => void };
@@ -57,7 +58,7 @@ class ServerlessEsLogsPlugin {
 
   private mergeCustomProviderResources(): void {
     this.serverless.cli.log('ServerlessEsLogsPlugin.mergeCustomProviderResources()');
-    const { includeApiGWLogs, retentionInDays, useDefaultRole } = this.custom().esLogs;
+    const { includeApiGWLogs, retentionInDays, useDefaultRole, xrayTracingPermissions } = this.custom().esLogs;
     const template = this.serverless.service.provider.compiledCloudFormationTemplate;
 
     // Add cloudwatch subscriptions to firehose for functions' log groups
@@ -66,6 +67,12 @@ class ServerlessEsLogsPlugin {
     // Configure Cloudwatch log retention
     if (retentionInDays !== undefined) {
       this.configureLogRetention(retentionInDays);
+    }
+
+    // Add xray permissions if option is enabled
+    if (xrayTracingPermissions === true) {
+      const statement = iamLambdaTemplate.ServerlessEsLogsLambdaIAMRole.Properties.Policies[0].PolicyDocument.Statement;
+      statement.push(withXrayTracingPermissions);
     }
 
     // Add IAM role for cloudwatch -> elasticsearch lambda
