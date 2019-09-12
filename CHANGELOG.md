@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.3...v3.1.0) (2019-09-12)
+
+
+### Features
+
+* **xrayTracingPermissions:** Add aws permissions for api gateway tracing ([#287](https://github.com/daniel-cottone/serverless-es-logs/issues/287)) ([848999b](https://github.com/daniel-cottone/serverless-es-logs/commit/848999b))
+
 ## [3.0.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.2...v3.0.3) (2019-08-05)
 
 
