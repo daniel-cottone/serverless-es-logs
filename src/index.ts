@@ -259,7 +259,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
-    const { index, endpoint, tags } = this.custom().esLogs;
+    const { index, endpoint, tags, memorySize } = this.custom().esLogs;
     const tagsStringified = tags ? JSON.stringify(tags) : /* istanbul ignore next */ '';
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
@@ -276,14 +276,14 @@ class ServerlessEsLogsPlugin {
       },
       events: [],
       handler,
-      memorySize: 512,
+      memorySize: memorySize || 512,
       name,
       package: {
         exclude: ['**'],
         include: [`${this.logProcesserDir}/**`],
         individually: true,
       },
-      runtime: 'nodejs8.10',
+      runtime: 'nodejs10.x',
       timeout: 60,
       tracing: false,
     };

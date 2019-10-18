@@ -10,9 +10,14 @@ try {
     tags = JSON.parse(process.env.ES_TAGS);
 } catch (_) {}
 
+// Set this to true if you want to debug why data isn't making it to 
+// your Elasticsearch cluster. This will enable logging of failed items
+// to CloudWatch Logs.
+var logFailedResponses = false;
+
 exports.handler = function(input, context) {
     // decode input from base64
-    var zippedInput = new Buffer(input.awslogs.data, 'base64');
+    var zippedInput = new Buffer.from(input.awslogs.data, 'base64');
 
     // decompress the input
     zlib.gunzip(zippedInput, function(error, buffer) {
@@ -21,37 +26,24 @@ exports.handler = function(input, context) {
         // parse the input from JSON
         var awslogsData = JSON.parse(buffer.toString('utf8'));
 
-        // transform the input to Elasticsearch documents array
-        var elasticsearchBulkArray = transform(awslogsData);
+        // transform the input to Elasticsearch documents
+        var elasticsearchBulkData = transform(awslogsData);
 
         // skip control messages
-        if (!elasticsearchBulkArray) {
+        if (!elasticsearchBulkData) {
             console.log('Received a control message');
             context.succeed('Control message handled successfully');
             return;
         }
 
-        var elasticsearchBulkPayload = esDocumentArrayToPayload(elasticsearchBulkArray);
-
         // post documents to the Amazon Elasticsearch Service
-        post(elasticsearchBulkPayload, function(error, success, statusCode, failedItems) {
+        post(elasticsearchBulkData, function(error, success, statusCode, failedItems) {
             console.log('Response: ' + JSON.stringify({ 
                 "statusCode": statusCode 
             }));
 
-            if (error) { 
-                console.log('Error: ' + JSON.stringify(error, null, 2));
-
-                if (failedItems && failedItems.length > 0) {
-                    console.log("Failed Items: " +
-                        JSON.stringify(failedItems, null, 2));
-
-                    var failedLogs = findFailedLogs(failedItems, elasticsearchBulkArray);
-                    failedLogs.forEach( failedLog => {
-                        console.log("Failed log content: " + JSON.stringify(failedLog, null, 2));
-                    });
-                }
-
+            if (error) {
+                logFailure(error, failedItems);
                 context.fail(JSON.stringify(error));
             } else {
                 console.log('Success: ' + JSON.stringify(success));
@@ -61,39 +53,12 @@ exports.handler = function(input, context) {
     });
 };
 
-function findFailedLogs(failedItems, esBulkArray) {
-    var failedLogs = [];
-
-    failedItems.forEach(item => {
-        var _id = item && item.index && item.index._id;
-        if (_id) {
-            var failedLog = esBulkArray.find(esLog => esLog && esLog.id === _id);
-            if (failedLog) {
-                failedLogs.push(failedLog);
-            }
-        }
-    });
-
-    return failedLogs;
-}
-
-function esDocumentArrayToPayload(esDocumentArray) {
-    return esDocumentArray.map(
-        item => {
-            return [
-                JSON.stringify(item.action),
-                JSON.stringify(item.source)
-            ].join('\n');
-        }
-    ).join('\n') + '\n';
-}
-
 function transform(payload) {
     if (payload.messageType === 'CONTROL_MESSAGE') {
         return null;
     }
 
-    var bulkRequest = [];
+    var bulkRequestBody = '';
 
     payload.logEvents.forEach(function(logEvent) {
         var timestamp = new Date(1 * logEvent.timestamp);
@@ -105,10 +70,8 @@ function transform(payload) {
             ('0' + timestamp.getUTCDate()).slice(-2)          // day
         ].join('.');
 
-        var id = logEvent.id;
-
         var source = buildSource(logEvent.message, logEvent.extractedFields);
-        source['@id'] = id;
+        source['@id'] = logEvent.id;
         source['@timestamp'] = new Date(1 * logEvent.timestamp).toISOString();
         source['@message'] = logEvent.message;
         source['@owner'] = payload.owner;
@@ -121,11 +84,14 @@ function transform(payload) {
         var action = { "index": {} };
         action.index._index = indexName;
         action.index._type = 'serverless-es-logs';
-        action.index._id = id;
+        action.index._id = logEvent.id;
         
-        bulkRequest.push({ id, action, source });
+        bulkRequestBody += [ 
+            JSON.stringify(action), 
+            JSON.stringify(source),
+        ].join('\n') + '\n';
     });
-    return bulkRequest;
+    return bulkRequestBody;
 }
 
 function buildSource(message, extractedFields) {
@@ -187,10 +153,12 @@ function post(body, callback) {
         response.on('data', function(chunk) {
             responseBody += chunk;
         });
+
         response.on('end', function() {
             var info = JSON.parse(responseBody);
             var failedItems;
             var success;
+            var error;
             
             if (response.statusCode >= 200 && response.statusCode < 299) {
                 failedItems = info.items.filter(function(x) {
@@ -204,10 +172,15 @@ function post(body, callback) {
                 };
             }
 
-            var error = response.statusCode !== 200 || info.errors === true ? {
-                "statusCode": response.statusCode,
-                "responseBody": responseBody
-            } : null;
+            if (response.statusCode !== 200 || info.errors === true) {
+                // prevents logging of failed entries, but allows logging 
+                // of other errors such as access restrictions
+                delete info.items;
+                error = {
+                    statusCode: response.statusCode,
+                    responseBody: info
+                };
+            }
 
             callback(error, success, response.statusCode, failedItems);
         });
@@ -284,4 +257,15 @@ function hmac(key, str, encoding) {
 
 function hash(str, encoding) {
     return crypto.createHash('sha256').update(str, 'utf8').digest(encoding);
+}
+
+function logFailure(error, failedItems) {
+    if (logFailedResponses) {
+        console.log('Error: ' + JSON.stringify(error, null, 2));
+
+        if (failedItems && failedItems.length > 0) {
+            console.log("Failed Items: " +
+                JSON.stringify(failedItems, null, 2));
+        }
+    }
 }

@@ -140,6 +140,15 @@ provider:
     apiGateway: true
 ```
 
+#### memorySize
+
+(Optional) Custom memorySize in MB allowed to the lambda to process the events. Default is 512.
+
+```yaml
+custom:
+  esLogs:
+    memorySize: 128
+
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg
