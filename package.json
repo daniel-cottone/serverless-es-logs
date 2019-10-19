@@ -73,7 +73,7 @@
   "devDependencies": {
     "@semantic-release/changelog": "3.0.4",
     "@semantic-release/git": "7.0.16",
-    "@semantic-release/github": "5.5.3",
+    "@semantic-release/github": "5.5.4",
     "@types/chai": "4.2.3",
     "@types/faker": "4.1.6",
     "@types/fs-extra": "8.0.0",
@@ -87,7 +87,7 @@
     "mocha": "6.2.1",
     "nyc": "14.1.1",
     "rimraf": "3.0.0",
-    "semantic-release": "15.13.24",
+    "semantic-release": "15.13.27",
     "sinon": "7.5.0",
     "ts-node": "8.4.1",
     "tslint": "5.20.0",
