@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.1.0...v3.1.1) (2019-10-22)
+
+
+### Bug Fixes
+
+* **config:** Updating nodejs runtime to node10.x ([#313](https://github.com/daniel-cottone/serverless-es-logs/issues/313)) ([cce8b2a](https://github.com/daniel-cottone/serverless-es-logs/commit/cce8b2a))
+
 # [3.1.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.0.3...v3.1.0) (2019-09-12)
 
 
