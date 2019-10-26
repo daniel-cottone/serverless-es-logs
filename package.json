@@ -71,9 +71,9 @@
     "lodash": "4.17.15"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "3.0.4",
-    "@semantic-release/git": "7.0.16",
-    "@semantic-release/github": "5.5.4",
+    "@semantic-release/changelog": "3.0.5",
+    "@semantic-release/git": "7.0.17",
+    "@semantic-release/github": "5.5.5",
     "@types/chai": "4.2.4",
     "@types/faker": "4.1.6",
     "@types/fs-extra": "8.0.1",
@@ -87,7 +87,7 @@
     "mocha": "6.2.2",
     "nyc": "14.1.1",
     "rimraf": "3.0.0",
-    "semantic-release": "15.13.27",
+    "semantic-release": "15.13.28",
     "sinon": "7.5.0",
     "ts-node": "8.4.1",
     "tslint": "5.20.0",
