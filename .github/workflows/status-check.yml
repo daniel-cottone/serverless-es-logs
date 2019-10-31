@@ -1,11 +1,10 @@
-name: CI
+name: Status check
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
 
   status-check:
-    name: Status check
     runs-on: ubuntu-latest
     strategy:
       matrix:
