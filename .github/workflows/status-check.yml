@@ -4,7 +4,31 @@ on: [push]
 
 jobs:
 
-  status-check:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Lint
+      run: |
+        yarn --frozen-lockfile
+        yarn lint
+  
+  unit-test:
+    name: Unit test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Unit test, run coverage
+      run: |
+        yarn --frozen-lockfile
+        yarn test
+        yarn coverage
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+  integration-test:
+    name: Integration test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,13 +42,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install serverless
       run: yarn global add serverless@${{ matrix.serverless-version }}
-    - name: Lint and test
+    - name: Integration test
       run: |
         yarn --frozen-lockfile
-        yarn lint
-        yarn test
         yarn integration
-        yarn coverage
-      env:
-        CI: true
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
