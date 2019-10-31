@@ -22,6 +22,7 @@ jobs:
       run: yarn global add serverless@${{ matrix.serverless-version }}
     - name: Lint and test
       run: |
+        yarn --frozen-lockfile
         yarn lint
         yarn test
         yarn integration
