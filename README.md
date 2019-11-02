@@ -2,7 +2,7 @@
 
 [![serverless][sls-image]][sls-url]
 [![npm package][npm-image]][npm-url]
-[![Build status][travis-image]][travis-url]
+[![Build status][gh-action-image]][gh-action-url]
 [![Coverage status][coveralls-image]][coveralls-url]
 [![Known Vulnerabilities][snyk-image]][snyk-url]
 [![Renovate][renovate-image]][renovate-url]
@@ -144,8 +144,8 @@ provider:
 [sls-url]:http://www.serverless.com
 [npm-image]:https://img.shields.io/npm/v/serverless-es-logs.svg
 [npm-url]:https://www.npmjs.com/package/serverless-es-logs
-[travis-image]:https://travis-ci.org/daniel-cottone/serverless-es-logs.svg?branch=master
-[travis-url]:https://travis-ci.org/daniel-cottone/serverless-es-logs
+[gh-action-image]:https://github.com/daniel-cottone/serverless-es-logs/workflows/Status%20check/badge.svg
+[gh-action-url]:https://github.com/daniel-cottone/serverless-es-logs/actions?query=workflow%3A%22Status+check%22
 [coveralls-image]:https://coveralls.io/repos/github/daniel-cottone/serverless-es-logs/badge.svg?branch=master
 [coveralls-url]:https://coveralls.io/github/daniel-cottone/serverless-es-logs?branch=master
 [snyk-image]:https://snyk.io/test/github/daniel-cottone/serverless-es-logs/badge.svg
