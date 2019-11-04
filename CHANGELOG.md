@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.1.1...v3.2.0) (2019-11-04)
+
+
+### Features
+
+* **API Gateway:** Supporting custom access log filters ([62cd23e](https://github.com/daniel-cottone/serverless-es-logs/commit/62cd23e))
+
 ## [3.1.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.1.0...v3.1.1) (2019-10-22)
 
 
