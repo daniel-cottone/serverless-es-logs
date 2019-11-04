@@ -8,12 +8,14 @@ custom:
     endpoint: ${opt:es-logs-endpoint, 'example.us-east-1.es.amazonaws.com'}
     index: example-rest-api
     includeApiGWLogs: true
+    apiGWFilterPattern: '[request_timestamp, apigw_request_id, http_method, resource_path, request_status, response_latency]'
 
 provider:
   name: aws
   runtime: nodejs10.x
   logs:
-    restApi: true
+    restApi:
+      format: '$context.requestTimeEpoch $context.requestId $context.httpMethod $context.resourcePath $context.status $context.responseLatency'
 
 functions:
   hello:

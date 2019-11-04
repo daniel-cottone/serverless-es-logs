@@ -31,6 +31,7 @@ plugins:
 ## Usage
 
 Define your configuration using the `custom` configuration option in `serverless.yml`:
+
 ```yaml
 custom:
   esLogs:
@@ -41,6 +42,25 @@ custom:
 Your logs will now be transported to the specified elasticsearch instance using the provided index.
 
 ### Options
+
+#### apiGWFilterPattern
+
+(Optional) The filter pattern that the Cloudwatch subscription should use for your API Gateway access
+logs. Default is `[event]`, but you can override this to provide a pattern that will match your custom
+access logs format. See
+[Cloudwatch filter pattern syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html)
+for more info.
+
+```yaml
+custom:
+  esLogs:
+    apiGWFilterPattern: '[request_timestamp, apigw_request_id, http_method, resource_path, request_status, response_latency]'
+
+provider:
+  logs:
+    restApi:
+      format: '$context.requestTimeEpoch $context.requestId $context.httpMethod $context.resourcePath $context.status $context.responseLatency'
+```
 
 #### endpoint
 
@@ -67,7 +87,7 @@ custom:
 
 #### includeApiGWLogs
 
-(Optional) An option to capture logs created by API Gateway and transport them to Elasticsearch.
+(Optional) An option to capture access logs created by API Gateway and transport them to Elasticsearch.
 
 ```yaml
 custom:
