@@ -82,7 +82,7 @@
     "@types/node": "10.17.5",
     "@types/sinon": "7.5.0",
     "chai": "4.2.0",
-    "coveralls": "3.0.7",
+    "coveralls": "3.0.8",
     "faker": "4.1.0",
     "mocha": "6.2.2",
     "nyc": "14.1.1",
