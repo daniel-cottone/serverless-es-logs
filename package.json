@@ -77,7 +77,7 @@
     "@types/chai": "4.2.11",
     "@types/faker": "4.1.11",
     "@types/fs-extra": "8.1.0",
-    "@types/lodash": "4.14.149",
+    "@types/lodash": "4.14.150",
     "@types/mocha": "7.0.2",
     "@types/node": "10.17.19",
     "@types/sinon": "9.0.0",
