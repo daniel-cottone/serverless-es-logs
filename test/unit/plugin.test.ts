@@ -47,7 +47,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
         Type: 'AWS::Logs::LogGroup',
       };
     }
-    plugin = new ServerlessEsLogsPlugin(serverless, options);       
+    plugin = new ServerlessEsLogsPlugin(serverless, options);
   };
 
   describe('#hooks', () => {
@@ -69,7 +69,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
             'ERROR: No configuration provided for serverless-es-logs!',
           );
         });
-  
+
         it('should throw an error if missing option \'endpoint\'', () => {
           const opts = {
             service: {
@@ -87,7 +87,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
             'ERROR: Must define an endpoint for serverless-es-logs!',
           );
         });
-  
+
         it('should throw an error if missing option \'index\'', () => {
           const opts = {
             service: {
@@ -123,6 +123,26 @@ describe('serverless-es-logs :: Plugin tests', () => {
           expect(plugin.hooks['after:package:initialize']).to.throw(
             Error,
             "ERROR: Tags must be an object! You provided 'bad_tags'.",
+          );
+        });
+
+        it('should throw an error if \'indexDateSeparator\' is not a string', () => {
+          const opts = {
+            service: {
+              custom: {
+                esLogs: {
+                  index: 'some_index',
+                  indexDateSeparator: 100,
+                  endpoint: 'some_endpoint',
+                },
+              },
+            },
+          };
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          expect(plugin.hooks['after:package:initialize']).to.throw(
+            Error,
+            "ERROR: indexDateSeparator must be a string! You provided '100'.",
           );
         });
       });
@@ -270,11 +290,11 @@ describe('serverless-es-logs :: Plugin tests', () => {
               },
               {
                 Action: [
-                    "xray:PutTraceSegments",
-                    "xray:PutTelemetryRecords",
-                    "xray:GetSamplingRules",
-                    "xray:GetSamplingTargets",
-                    "xray:GetSamplingStatisticSummaries"
+                  "xray:PutTraceSegments",
+                  "xray:PutTelemetryRecords",
+                  "xray:GetSamplingRules",
+                  "xray:GetSamplingTargets",
+                  "xray:GetSamplingStatisticSummaries"
                 ],
                 Effect: "Allow",
                 Resource: "*"
