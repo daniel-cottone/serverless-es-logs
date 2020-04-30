@@ -19,6 +19,7 @@ class ServerlessEsLogsPlugin {
   private logProcesserLogicalId: string;
   private defaultLambdaFilterPattern: string = '[timestamp=*Z, request_id="*-*", event]';
   private defaultApiGWFilterPattern: string = '[event]';
+  private defaultIndexDateSeparator: string = '.';
 
   constructor(serverless: any, options: { [name: string]: any }) {
     this.serverless = serverless;
@@ -110,7 +111,7 @@ class ServerlessEsLogsPlugin {
       throw new this.serverless.classes.Error(`ERROR: No configuration provided for serverless-es-logs!`);
     }
 
-    const { endpoint, index, tags } = esLogs;
+    const { endpoint, index, indexDateSeparator, tags } = esLogs;
     if (!endpoint) {
       throw new this.serverless.classes.Error(`ERROR: Must define an endpoint for serverless-es-logs!`);
     }
@@ -121,6 +122,10 @@ class ServerlessEsLogsPlugin {
 
     if (tags && !_.isPlainObject(tags)) {
       throw new this.serverless.classes.Error(`ERROR: Tags must be an object! You provided '${tags}'.`);
+    }
+
+    if (indexDateSeparator && !_.isString(indexDateSeparator)) {
+      throw new this.serverless.classes.Error(`ERROR: indexDateSeparator must be a string! You provided '${indexDateSeparator}'.`);
     }
   }
 
@@ -162,7 +167,7 @@ class ServerlessEsLogsPlugin {
             ],
           ],
         })
-        .withDependsOn([ this.logProcesserLogicalId, apiGwLogGroupLogicalId ])
+        .withDependsOn([this.logProcesserLogicalId, apiGwLogGroupLogicalId])
         .build();
 
       // Create subscription filter
@@ -175,7 +180,7 @@ class ServerlessEsLogsPlugin {
         })
         .withFilterPattern(filterPattern)
         .withLogGroupName(LogGroupName)
-        .withDependsOn([ this.logProcesserLogicalId, permissionLogicalId ])
+        .withDependsOn([this.logProcesserLogicalId, permissionLogicalId])
         .build();
 
       // Create subscription template
@@ -224,7 +229,7 @@ class ServerlessEsLogsPlugin {
             'Arn',
           ],
         })
-        .withDependsOn([ this.logProcesserLogicalId, logGroupLogicalId ])
+        .withDependsOn([this.logProcesserLogicalId, logGroupLogicalId])
         .build();
 
       // Create subscription filter
@@ -237,7 +242,7 @@ class ServerlessEsLogsPlugin {
         })
         .withFilterPattern(filterPattern)
         .withLogGroupName(logGroupName)
-        .withDependsOn([ this.logProcesserLogicalId, permissionLogicalId ])
+        .withDependsOn([this.logProcesserLogicalId, permissionLogicalId])
         .build();
 
       // Create subscription template
@@ -260,7 +265,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
-    const { index, endpoint, tags, vpc } = this.custom().esLogs;
+    const { index, indexDateSeparator, endpoint, tags, vpc } = this.custom().esLogs;
     const tagsStringified = tags ? JSON.stringify(tags) : /* istanbul ignore next */ '';
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
@@ -273,6 +278,7 @@ class ServerlessEsLogsPlugin {
       environment: {
         ES_ENDPOINT: endpoint,
         ES_INDEX_PREFIX: index,
+        ES_INDEX_DATE_SEPARATOR: indexDateSeparator || this.defaultIndexDateSeparator,
         ES_TAGS: tagsStringified,
       },
       vpc,
