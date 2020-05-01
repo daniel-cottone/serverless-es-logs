@@ -1,3 +1,10 @@
+## [3.2.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.2.1...v3.2.2) (2020-05-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fs-extra to v9 ([#386](https://github.com/daniel-cottone/serverless-es-logs/issues/386)) ([f3e3185](https://github.com/daniel-cottone/serverless-es-logs/commit/f3e3185))
+
 ## [3.2.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.2.0...v3.2.1) (2020-05-01)
 
 
