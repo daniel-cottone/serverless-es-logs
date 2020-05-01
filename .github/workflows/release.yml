@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Release
-        uses: brpaz/action-semantic-release@v1
+        uses: cycjimmy/semantic-release-action@v2
         env:
           CI: true
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_PAT}}
