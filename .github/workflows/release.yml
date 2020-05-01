@@ -12,6 +12,12 @@ jobs:
       - uses: actions/checkout@v1
       - name: Release
         uses: cycjimmy/semantic-release-action@v2
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/github
+            @semantic-release/npm
         env:
           CI: true
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
