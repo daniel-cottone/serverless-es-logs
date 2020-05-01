@@ -27,9 +27,10 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "integration": "./scripts/integration-test.sh",
     "lint": "tslint --project . --format stylish",
-    "prepublish": "yarn compile:clean && yarn compile",
+    "prepublish": "yarn run snyk-protect && yarn compile:clean && yarn compile",
     "release": "semantic-release",
-    "test": "nyc mocha"
+    "test": "nyc mocha",
+    "snyk-protect": "snyk protect"
   },
   "keywords": [
     "aws",
@@ -68,7 +69,8 @@
   },
   "dependencies": {
     "fs-extra": "8.1.0",
-    "lodash": "4.17.15"
+    "lodash": "4.17.15",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@semantic-release/changelog": "3.0.6",
@@ -92,5 +94,6 @@
     "ts-node": "8.8.2",
     "tslint": "6.1.1",
     "typescript": "3.8.3"
-  }
+  },
+  "snyk": true
 }
