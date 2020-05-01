@@ -8,17 +8,14 @@ jobs:
     
   release:
     runs-on: ubuntu-latest
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
       - name: Release
-        uses: cycjimmy/semantic-release-action@v2
-        with:
-          extra_plugins: |
-            @semantic-release/changelog
-            @semantic-release/git
-            @semantic-release/github
-            @semantic-release/npm
+        run: yarn release
         env:
-          CI: true
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
