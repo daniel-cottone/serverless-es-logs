@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.2.0...v3.2.1) (2020-05-01)
+
+
+### Bug Fixes
+
+* Supporting node >=10 ([88fce8c](https://github.com/daniel-cottone/serverless-es-logs/commit/88fce8c88a043fa93b35c3a4e11bcf2557fa0682))
+
 # [3.2.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.1.1...v3.2.0) (2019-11-04)
 
 
