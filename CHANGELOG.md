@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.2.2...v3.3.0) (2020-05-27)
+
+
+### Features
+
+* Add vpc configuration ([#416](https://github.com/daniel-cottone/serverless-es-logs/issues/416)) ([42994d3](https://github.com/daniel-cottone/serverless-es-logs/commit/42994d3))
+
 ## [3.2.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.2.1...v3.2.2) (2020-05-01)
 
 
