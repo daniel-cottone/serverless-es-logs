@@ -146,6 +146,22 @@ provider:
   role: arn:aws:iam::123456789012:role/MyCustomRole
 ```
 
+#### vpc
+
+(Optional) VPC configuration for the log processor lambda to have.
+
+```yaml
+custom:
+  esLogs:
+    vpc: 
+      securityGroupIds:
+        - sg-123456789
+      subnetIds:
+        - subnet-123456789
+        - subnet-223456789
+        - subnet-323456789
+```
+
 #### xrayTracingPermissions
 
 (Optional) Adds AWS Xray writing permissions to the processor lambda. You will need these if you enable tracing for ApiGateway on your service. 

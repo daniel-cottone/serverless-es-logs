@@ -133,6 +133,29 @@ describe('serverless-es-logs :: Plugin tests', () => {
           expect(serverless.service.functions).to.have.property('esLogsProcesser');
           expect(fs.existsSync(dirPath)).to.be.true;
         });
+
+        it('should add vpc config if specified', () => {
+          const vpc = {
+            securityGroupIds: ['securityGroup'],
+            subnetIds: ['subnet']
+          };
+          const opts = {
+            service: {
+              custom: {
+                esLogs: {
+                  endpoint: 'some_endpoint',
+                  index: 'some_index',
+                  vpc
+                },
+              },
+            },
+          };
+          
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          plugin.hooks['after:package:initialize']();
+          expect(serverless.service.functions.esLogsProcesser).to.have.deep.property('vpc', vpc);
+        });
       });
     });
 

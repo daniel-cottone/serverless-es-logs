@@ -1,6 +1,10 @@
 export interface IPluginOpts {
   domainArn?: string;
   index?: string;
+  vpc?: {
+      securityGroupIds: string[];
+      subnetIds: string[];
+  };
 }
 
 export interface IFormatterOpts {
