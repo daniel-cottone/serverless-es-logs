@@ -1,18 +1,21 @@
-// v1.1.2
+// v1.1.3
 var https = require('https');
 var zlib = require('zlib');
 var crypto = require('crypto');
+var AWS = require('aws-sdk');
 
 var endpoint = process.env.ES_ENDPOINT;
 var indexPrefix = process.env.ES_INDEX_PREFIX;
+var assumeRoleArn = process.env.ES_ASSUME_ROLE_ARN;
 var tags = undefined;
 try {
     tags = JSON.parse(process.env.ES_TAGS);
-} catch (_) {}
+}
+catch (_) {}
 
 exports.handler = function(input, context) {
     // decode input from base64
-    var zippedInput = new Buffer(input.awslogs.data, 'base64');
+    var zippedInput = new Buffer.from(input.awslogs.data, 'base64');
 
     // decompress the input
     zlib.gunzip(zippedInput, function(error, buffer) {
@@ -35,11 +38,11 @@ exports.handler = function(input, context) {
 
         // post documents to the Amazon Elasticsearch Service
         post(elasticsearchBulkPayload, function(error, success, statusCode, failedItems) {
-            console.log('Response: ' + JSON.stringify({ 
-                "statusCode": statusCode 
+            console.log('Response: ' + JSON.stringify({
+                "statusCode": statusCode
             }));
 
-            if (error) { 
+            if (error) {
                 console.log('Error: ' + JSON.stringify(error, null, 2));
 
                 if (failedItems && failedItems.length > 0) {
@@ -47,13 +50,14 @@ exports.handler = function(input, context) {
                         JSON.stringify(failedItems, null, 2));
 
                     var failedLogs = findFailedLogs(failedItems, elasticsearchBulkArray);
-                    failedLogs.forEach( failedLog => {
+                    failedLogs.forEach(failedLog => {
                         console.log("Failed log content: " + JSON.stringify(failedLog, null, 2));
                     });
                 }
 
                 context.fail(JSON.stringify(error));
-            } else {
+            }
+            else {
                 console.log('Success: ' + JSON.stringify(success));
                 context.succeed('Success');
             }
@@ -63,7 +67,6 @@ exports.handler = function(input, context) {
 
 function findFailedLogs(failedItems, esBulkArray) {
     var failedLogs = [];
-
     failedItems.forEach(item => {
         var _id = item && item.index && item.index._id;
         if (_id) {
@@ -100,9 +103,9 @@ function transform(payload) {
 
         // index name format: cwl-YYYY.MM.DD
         var indexName = [
-            indexPrefix + '-' + timestamp.getUTCFullYear(),   // year
-            ('0' + (timestamp.getUTCMonth() + 1)).slice(-2),  // month
-            ('0' + timestamp.getUTCDate()).slice(-2)          // day
+            indexPrefix + '-' + timestamp.getUTCFullYear(), // year
+            ('0' + (timestamp.getUTCMonth() + 1)).slice(-2), // month
+            ('0' + timestamp.getUTCDate()).slice(-2) // day
         ].join('.');
 
         var id = logEvent.id;
@@ -122,7 +125,7 @@ function transform(payload) {
         action.index._index = indexName;
         action.index._type = 'serverless-es-logs';
         action.index._id = id;
-        
+
         bulkRequest.push({ id, action, source });
     });
     return bulkRequest;
@@ -154,8 +157,8 @@ function buildSource(message, extractedFields) {
     }
 
     jsonSubString = extractJson(message);
-    if (jsonSubString !== null) { 
-        return JSON.parse(jsonSubString); 
+    if (jsonSubString !== null) {
+        return JSON.parse(jsonSubString);
     }
 
     return {};
@@ -171,7 +174,8 @@ function extractJson(message) {
 function isValidJson(message) {
     try {
         JSON.parse(message);
-    } catch (e) { return false; }
+    }
+    catch (e) { return false; }
     return true;
 }
 
@@ -180,102 +184,142 @@ function isNumeric(n) {
 }
 
 function post(body, callback) {
-    var requestParams = buildRequest(endpoint, body);
+    buildRequest(endpoint, body).then(function(requestParams) {
 
-    var request = https.request(requestParams, function(response) {
-        var responseBody = '';
-        response.on('data', function(chunk) {
-            responseBody += chunk;
+        var request = https.request(requestParams, function(response) {
+            var responseBody = '';
+            response.on('data', function(chunk) {
+                responseBody += chunk;
+            });
+            response.on('end', function() {
+                var info = JSON.parse(responseBody);
+                var failedItems;
+                var success;
+
+                if (response.statusCode >= 200 && response.statusCode < 299) {
+                    failedItems = info.items.filter(function(x) {
+                        return x.index.status >= 300;
+                    });
+
+                    success = {
+                        "attemptedItems": info.items.length,
+                        "successfulItems": info.items.length - failedItems.length,
+                        "failedItems": failedItems.length
+                    };
+                }
+
+                var error = response.statusCode !== 200 || info.errors === true ? {
+                    "statusCode": response.statusCode,
+                    "responseBody": responseBody
+                } : null;
+
+                callback(error, success, response.statusCode, failedItems);
+            });
+        }).on('error', function(e) {
+            callback(e);
         });
-        response.on('end', function() {
-            var info = JSON.parse(responseBody);
-            var failedItems;
-            var success;
-            
-            if (response.statusCode >= 200 && response.statusCode < 299) {
-                failedItems = info.items.filter(function(x) {
-                    return x.index.status >= 300;
-                });
-
-                success = { 
-                    "attemptedItems": info.items.length,
-                    "successfulItems": info.items.length - failedItems.length,
-                    "failedItems": failedItems.length
-                };
-            }
-
-            var error = response.statusCode !== 200 || info.errors === true ? {
-                "statusCode": response.statusCode,
-                "responseBody": responseBody
-            } : null;
-
-            callback(error, success, response.statusCode, failedItems);
-        });
-    }).on('error', function(e) {
-        callback(e);
+        request.write(requestParams.body);
+        request.end();
     });
-    request.end(requestParams.body);
+}
+
+function getCreds() {
+    if (assumeRoleArn != undefined) {
+        console.log("STS Assume Role call");
+    var sts = new AWS.STS({ region: "us-west-2" });
+    var params = {
+        RoleSessionName: "es-logs-session",
+        RoleArn: assumeRoleArn,
+        DurationSeconds: 900
+    };
+    return new Promise(function(resolve, reject) {
+        sts.assumeRole(params, function(err, data) {
+            if (err) {
+                console.log(err, err.stack); // an error occurred
+                resolve("Error in sts assumeRole: " + err + err.stack);
+            }
+            else {
+                resolve(data);
+            }
+        });
+    });
+    } else {
+    return new Promise(function(resolve, reject) {
+        console.log("Use lambda role permissions");
+        var data = {};
+        data.Credentials = {};
+        data.Credentials.AccessKeyId = process.env.AWS_SECRET_ACCESS_KEY;
+        data.Credentials.SecretAccessKey = process.env.AWS_ACCESS_KEY_ID;
+        data.Credentials.SessionToken = process.env.AWS_SESSION_TOKEN;
+        console.log(JSON.stringify(data));
+        resolve(data);
+    });
+    }
 }
 
 function buildRequest(endpoint, body) {
-    var endpointParts = endpoint.match(/^([^\.]+)\.?([^\.]*)\.?([^\.]*)\.amazonaws\.com$/);
-    var region = endpointParts[2];
-    var service = endpointParts[3];
-    var datetime = (new Date()).toISOString().replace(/[:\-]|\.\d{3}/g, '');
-    var date = datetime.substr(0, 8);
-    var kDate = hmac('AWS4' + process.env.AWS_SECRET_ACCESS_KEY, date);
-    var kRegion = hmac(kDate, region);
-    var kService = hmac(kRegion, service);
-    var kSigning = hmac(kService, 'aws4_request');
-    
-    var request = {
-        host: endpoint,
-        method: 'POST',
-        path: '/_bulk',
-        body: body,
-        headers: { 
-            'Content-Type': 'application/json',
-            'Host': endpoint,
-            'Content-Length': Buffer.byteLength(body),
-            'X-Amz-Security-Token': process.env.AWS_SESSION_TOKEN,
-            'X-Amz-Date': datetime
-        }
-    };
+    return new Promise(function(resolve, reject) {
+        getCreds().then((data) => {
+            var endpointParts = endpoint.match(/^([^\.]+)\.?([^\.]*)\.?([^\.]*)\.amazonaws\.com$/);
+            var region = endpointParts[2];
+            var service = endpointParts[3];
+            var datetime = (new Date()).toISOString().replace(/[:\-]|\.\d{3}/g, '');
+            var date = datetime.substr(0, 8);
+            var kDate = hmac('AWS4' + data.Credentials.SecretAccessKey, date);
+            var kRegion = hmac(kDate, region);
+            var kService = hmac(kRegion, service);
+            var kSigning = hmac(kService, 'aws4_request');
 
-    var canonicalHeaders = Object.keys(request.headers)
-        .sort(function(a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; })
-        .map(function(k) { return k.toLowerCase() + ':' + request.headers[k]; })
-        .join('\n');
 
-    var signedHeaders = Object.keys(request.headers)
-        .map(function(k) { return k.toLowerCase(); })
-        .sort()
-        .join(';');
+            var request = {
+                host: endpoint,
+                method: 'POST',
+                path: '/_bulk',
+                body: body,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Host': endpoint,
+                    'Content-Length': Buffer.byteLength(body),
+                    'X-Amz-Security-Token': data.Credentials.SessionToken,
+                    'X-Amz-Date': datetime
+                }
+            };
 
-    var canonicalString = [
-        request.method,
-        request.path, '',
-        canonicalHeaders, '',
-        signedHeaders,
-        hash(request.body, 'hex'),
-    ].join('\n');
+            var canonicalHeaders = Object.keys(request.headers)
+                .sort(function(a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; })
+                .map(function(k) { return k.toLowerCase() + ':' + request.headers[k]; })
+                .join('\n');
 
-    var credentialString = [ date, region, service, 'aws4_request' ].join('/');
+            var signedHeaders = Object.keys(request.headers)
+                .map(function(k) { return k.toLowerCase(); })
+                .sort()
+                .join(';');
 
-    var stringToSign = [
-        'AWS4-HMAC-SHA256',
-        datetime,
-        credentialString,
-        hash(canonicalString, 'hex')
-    ] .join('\n');
+            var canonicalString = [
+                request.method,
+                request.path, '',
+                canonicalHeaders, '',
+                signedHeaders,
+                hash(request.body, 'hex'),
+            ].join('\n');
 
-    request.headers.Authorization = [
-        'AWS4-HMAC-SHA256 Credential=' + process.env.AWS_ACCESS_KEY_ID + '/' + credentialString,
-        'SignedHeaders=' + signedHeaders,
-        'Signature=' + hmac(kSigning, stringToSign, 'hex')
-    ].join(', ');
+            var credentialString = [date, region, service, 'aws4_request'].join('/');
 
-    return request;
+            var stringToSign = [
+                'AWS4-HMAC-SHA256',
+                datetime,
+                credentialString,
+                hash(canonicalString, 'hex')
+            ].join('\n');
+            request.headers.Authorization = [
+                'AWS4-HMAC-SHA256 Credential=' + data.Credentials.AccessKeyId + '/' + credentialString,
+                'SignedHeaders=' + signedHeaders,
+                'Signature=' + hmac(kSigning, stringToSign, 'hex')
+            ].join(', ');
+
+            resolve(request);
+        });
+    });
 }
 
 function hmac(key, str, encoding) {
