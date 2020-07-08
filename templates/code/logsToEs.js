@@ -251,7 +251,6 @@ function getCreds() {
         data.Credentials.AccessKeyId = process.env.AWS_SECRET_ACCESS_KEY;
         data.Credentials.SecretAccessKey = process.env.AWS_ACCESS_KEY_ID;
         data.Credentials.SessionToken = process.env.AWS_SESSION_TOKEN;
-        console.log(JSON.stringify(data));
         resolve(data);
     });
     }
