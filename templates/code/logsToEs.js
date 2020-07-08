@@ -103,9 +103,9 @@ function transform(payload) {
 
         // index name format: cwl-YYYY.MM.DD
         var indexName = [
-            indexPrefix + '-' + timestamp.getUTCFullYear(), // year
+            indexPrefix + '-' + timestamp.getUTCFullYear(),  // year
             ('0' + (timestamp.getUTCMonth() + 1)).slice(-2), // month
-            ('0' + timestamp.getUTCDate()).slice(-2) // day
+            ('0' + timestamp.getUTCDate()).slice(-2)         // day
         ].join('.');
 
         var id = logEvent.id;
@@ -174,8 +174,7 @@ function extractJson(message) {
 function isValidJson(message) {
     try {
         JSON.parse(message);
-    }
-    catch (e) { return false; }
+    } catch (e) { return false; }
     return true;
 }
 
