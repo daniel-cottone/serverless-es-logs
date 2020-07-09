@@ -1,6 +1,6 @@
 {
   "name": "serverless-es-logs",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "license": "MIT",
   "description": "A Serverless plugin to transport logs to ElasticSearch",
   "author": "Daniel Cottone <daniel.cottone@asurion.com> (https://github.com/daniel-cottone)",
@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "fs-extra": "9.0.0",
-    "lodash": "4.17.15"
+    "lodash": "4.17.19"
   },
   "devDependencies": {
     "@semantic-release/changelog": "5.0.1",
@@ -77,20 +77,20 @@
     "@types/chai": "4.2.11",
     "@types/faker": "4.1.12",
     "@types/fs-extra": "8.1.1",
-    "@types/lodash": "4.14.155",
+    "@types/lodash": "4.14.157",
     "@types/mocha": "7.0.2",
     "@types/node": "10.17.26",
     "@types/sinon": "9.0.4",
     "chai": "4.2.0",
     "coveralls": "3.1.0",
     "faker": "4.1.0",
-    "mocha": "7.2.0",
+    "mocha": "8.0.1",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
-    "semantic-release": "17.0.8",
+    "semantic-release": "17.1.1",
     "sinon": "9.0.2",
     "ts-node": "8.10.2",
     "tslint": "6.1.2",
-    "typescript": "3.9.5"
+    "typescript": "3.9.6"
   }
 }
