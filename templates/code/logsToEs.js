@@ -36,11 +36,11 @@ exports.handler = function(input, context) {
 
         // post documents to the Amazon Elasticsearch Service
         post(elasticsearchBulkPayload, function(error, success, statusCode, failedItems) {
-            console.log('Response: ' + JSON.stringify({
-                "statusCode": statusCode
+            console.log('Response: ' + JSON.stringify({ 
+                "statusCode": statusCode 
             }));
 
-            if (error) {
+            if (error) { 
                 console.log('Error: ' + JSON.stringify(error, null, 2));
 
                 if (failedItems && failedItems.length > 0) {
@@ -98,7 +98,6 @@ function transform(payload) {
 
     payload.logEvents.forEach(function(logEvent) {
         var timestamp = new Date(1 * logEvent.timestamp);
-        timestamp.utc
 
         // index name format: indexPrefix-YYYY.MM.DD where '.' can be customized using indexDateSeparator
         var indexName = [
@@ -124,7 +123,7 @@ function transform(payload) {
         action.index._index = indexName;
         action.index._type = 'serverless-es-logs';
         action.index._id = id;
-
+        
         bulkRequest.push({ id, action, source });
     });
     return bulkRequest;
@@ -156,8 +155,8 @@ function buildSource(message, extractedFields) {
     }
 
     jsonSubString = extractJson(message);
-    if (jsonSubString !== null) {
-        return JSON.parse(jsonSubString);
+    if (jsonSubString !== null) { 
+        return JSON.parse(jsonSubString); 
     }
 
     return {};
@@ -193,13 +192,13 @@ function post(body, callback) {
             var info = JSON.parse(responseBody);
             var failedItems;
             var success;
-
+            
             if (response.statusCode >= 200 && response.statusCode < 299) {
                 failedItems = info.items.filter(function(x) {
                     return x.index.status >= 300;
                 });
 
-                success = {
+                success = { 
                     "attemptedItems": info.items.length,
                     "successfulItems": info.items.length - failedItems.length,
                     "failedItems": failedItems.length
@@ -229,13 +228,13 @@ function buildRequest(endpoint, body) {
     var kRegion = hmac(kDate, region);
     var kService = hmac(kRegion, service);
     var kSigning = hmac(kService, 'aws4_request');
-
+    
     var request = {
         host: endpoint,
         method: 'POST',
         path: '/_bulk',
         body: body,
-        headers: {
+        headers: { 
             'Content-Type': 'application/json',
             'Host': endpoint,
             'Content-Length': Buffer.byteLength(body),

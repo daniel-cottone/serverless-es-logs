@@ -178,7 +178,7 @@ custom:
 
 #### xrayTracingPermissions
 
-(Optional) Adds AWS Xray writing permissions to the processor lambda. You will need these if you enable tracing for ApiGateway on your service.
+(Optional) Adds AWS Xray writing permissions to the processor lambda. You will need these if you enable tracing for ApiGateway on your service. 
 
 ```yaml
 custom:

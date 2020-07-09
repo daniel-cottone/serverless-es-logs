@@ -167,7 +167,7 @@ class ServerlessEsLogsPlugin {
             ],
           ],
         })
-        .withDependsOn([this.logProcesserLogicalId, apiGwLogGroupLogicalId])
+        .withDependsOn([ this.logProcesserLogicalId, apiGwLogGroupLogicalId ])
         .build();
 
       // Create subscription filter
@@ -180,7 +180,7 @@ class ServerlessEsLogsPlugin {
         })
         .withFilterPattern(filterPattern)
         .withLogGroupName(LogGroupName)
-        .withDependsOn([this.logProcesserLogicalId, permissionLogicalId])
+        .withDependsOn([ this.logProcesserLogicalId, permissionLogicalId ])
         .build();
 
       // Create subscription template
@@ -229,7 +229,7 @@ class ServerlessEsLogsPlugin {
             'Arn',
           ],
         })
-        .withDependsOn([this.logProcesserLogicalId, logGroupLogicalId])
+        .withDependsOn([ this.logProcesserLogicalId, logGroupLogicalId ])
         .build();
 
       // Create subscription filter
@@ -242,7 +242,7 @@ class ServerlessEsLogsPlugin {
         })
         .withFilterPattern(filterPattern)
         .withLogGroupName(logGroupName)
-        .withDependsOn([this.logProcesserLogicalId, permissionLogicalId])
+        .withDependsOn([ this.logProcesserLogicalId, permissionLogicalId ])
         .build();
 
       // Create subscription template
