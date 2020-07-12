@@ -13,7 +13,7 @@ try {
 
 exports.handler = function(input, context) {
     // decode input from base64
-    var zippedInput = new Buffer(input.awslogs.data, 'base64');
+    var zippedInput = new Buffer.from(input.awslogs.data, 'base64');
 
     // decompress the input
     zlib.gunzip(zippedInput, function(error, buffer) {
