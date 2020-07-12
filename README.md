@@ -110,6 +110,20 @@ custom:
     index: some-index
 ```
 
+#### indexDateSeparator
+
+(Optional) The separator to use when creating the date suffix for the index. Default is `.`.
+
+The format of the index will be: `<index>-YYYY<indexDateSeparator>MM<indexDateSeparator>DD`
+
+```yaml
+custom:
+  esLogs:
+    indexDateSeparator: '-'
+```
+
+This will result in a date like `2020-04-20`.
+
 #### retentionInDays
 
 (Optional) The number of days that Cloudwatch logs should persist. Default is to never expire.
