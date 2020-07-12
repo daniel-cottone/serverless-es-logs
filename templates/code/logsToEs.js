@@ -5,6 +5,7 @@ var crypto = require('crypto');
 
 var endpoint = process.env.ES_ENDPOINT;
 var indexPrefix = process.env.ES_INDEX_PREFIX;
+var indexDateSeparator = process.env.ES_INDEX_DATE_SEPARATOR;
 var tags = undefined;
 try {
     tags = JSON.parse(process.env.ES_TAGS);
@@ -98,12 +99,12 @@ function transform(payload) {
     payload.logEvents.forEach(function(logEvent) {
         var timestamp = new Date(1 * logEvent.timestamp);
 
-        // index name format: cwl-YYYY.MM.DD
+        // index name format: indexPrefix-YYYY.MM.DD where '.' can be customized using indexDateSeparator
         var indexName = [
             indexPrefix + '-' + timestamp.getUTCFullYear(),   // year
             ('0' + (timestamp.getUTCMonth() + 1)).slice(-2),  // month
             ('0' + timestamp.getUTCDate()).slice(-2)          // day
-        ].join('.');
+        ].join(indexDateSeparator);
 
         var id = logEvent.id;
 

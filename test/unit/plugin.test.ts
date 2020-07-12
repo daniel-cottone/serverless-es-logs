@@ -127,6 +127,26 @@ describe('serverless-es-logs :: Plugin tests', () => {
         });
       });
 
+      it('should throw an error if \'indexDateSeparator\' is not a string', () => {
+        const opts = {
+          service: {
+            custom: {
+              esLogs: {
+                index: 'some_index',
+                indexDateSeparator: 100,
+                endpoint: 'some_endpoint',
+              },
+            },
+          },
+        };
+        serverless = new ServerlessBuilder(opts).build();
+        plugin = new ServerlessEsLogsPlugin(serverless, options);
+        expect(plugin.hooks['after:package:initialize']).to.throw(
+          Error,
+          "ERROR: indexDateSeparator must be a string! You provided '100'.",
+        );
+      });
+
       describe('#addLogProcesser()', () => {
         it('should create the log processer function', () => {
           plugin.hooks['after:package:initialize']();

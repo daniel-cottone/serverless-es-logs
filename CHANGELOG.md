@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.3.1...v3.4.0) (2020-07-12)
+
+
+### Features
+
+* Support custom separator for date format of index ([#402](https://github.com/daniel-cottone/serverless-es-logs/issues/402)) ([7d164fd](https://github.com/daniel-cottone/serverless-es-logs/commit/7d164fd))
+
 ## [3.3.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.3.0...v3.3.1) (2020-07-09)
 
 
