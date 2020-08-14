@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.4.0...v3.4.1) (2020-08-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency lodash to v4.17.20 ([#446](https://github.com/daniel-cottone/serverless-es-logs/issues/446)) ([b0002f3](https://github.com/daniel-cottone/serverless-es-logs/commit/b0002f3))
+
 # [3.4.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.3.1...v3.4.0) (2020-07-12)
 
 
