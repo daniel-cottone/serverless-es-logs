@@ -91,6 +91,6 @@
     "sinon": "9.0.3",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
-    "typescript": "3.9.7"
+    "typescript": "4.0.2"
   }
 }
