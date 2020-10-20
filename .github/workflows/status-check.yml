@@ -8,7 +8,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Lint
       run: |
         yarn --frozen-lockfile
@@ -18,7 +18,7 @@ jobs:
     name: Unit test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Unit test
       run: |
         yarn --frozen-lockfile
@@ -32,7 +32,7 @@ jobs:
         node-version: [10.x, 12.x]
         serverless-version: [latest]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
