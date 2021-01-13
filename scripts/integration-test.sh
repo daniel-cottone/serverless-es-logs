@@ -1,10 +1,9 @@
 #!/bin/sh -e
 
 yarn link
-yarn link serverless-es-logs
+yarn link @getjerry/serverless-es-logs
 
-for d in ./examples/*/
-do
+for d in ./examples/*/; do
   cd $d
   sls package
   cd ../..
