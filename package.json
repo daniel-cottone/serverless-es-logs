@@ -4,9 +4,13 @@
   "license": "MIT",
   "description": "A Serverless plugin to transport logs to ElasticSearch (Jerry)",
   "author": "Daniel Cottone <daniel.cottone@asurion.com> (https://github.com/daniel-cottone)",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getjerry/serverless-es-logs.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
   "bugs": {
     "url": "https://github.com/getjerry/serverless-es-logs/issues"
@@ -28,7 +32,7 @@
     "integration": "./scripts/integration-test.sh",
     "lint": "tslint --project . --format stylish",
     "prepublish": "yarn compile:clean && yarn compile",
-    "release": "semantic-release",
+    "release": "npm publish",
     "test": "nyc mocha"
   },
   "keywords": [

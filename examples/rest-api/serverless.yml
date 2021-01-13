@@ -1,7 +1,7 @@
 service: example-rest-api
 
 plugins:
-  - serverless-es-logs
+  - "@getjerry/serverless-es-logs"
 
 custom:
   esLogs:
