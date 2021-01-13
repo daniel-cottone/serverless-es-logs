@@ -1,7 +1,7 @@
 .npmrc
 .nyc_output
 coverage
-dist
+# dist
 node_modules
 yarn-error.log
 
