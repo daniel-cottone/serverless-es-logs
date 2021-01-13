@@ -129,6 +129,20 @@ function transform(payload) {
     return bulkRequest;
 }
 
+/**
+ * Remove array fields from event data to reduce index fields size.
+ */
+const clean = (data) => {
+    for (const key in data) {
+        if (Array.isArray(data[key])) {
+        delete data[key];
+    } else if (typeof data[key] === 'object' && data[key] !== null) {
+        data[key] = clean(data[key]);
+    }
+    }
+    return data;
+};
+
 function buildSource(message, extractedFields) {
     var jsonSubString = null;
     if (extractedFields) {
@@ -145,7 +159,7 @@ function buildSource(message, extractedFields) {
 
                 jsonSubString = extractJson(value);
                 if (jsonSubString !== null) {
-                    source['@' + key] = JSON.parse(jsonSubString);
+                    source['@' + key] = clean(JSON.parse(jsonSubString));
                 }
 
                 source[key] = (key === 'apigw_request_id') ? value.slice(1, value.length - 1) : value;

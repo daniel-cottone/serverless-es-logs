@@ -1,17 +1,17 @@
 {
-  "name": "serverless-es-logs",
-  "version": "3.4.1",
+  "name": "@getjerry/serverless-es-logs",
+  "version": "3.4.2",
   "license": "MIT",
-  "description": "A Serverless plugin to transport logs to ElasticSearch",
+  "description": "A Serverless plugin to transport logs to ElasticSearch (Jerry)",
   "author": "Daniel Cottone <daniel.cottone@asurion.com> (https://github.com/daniel-cottone)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daniel-cottone/serverless-es-logs.git"
+    "url": "git+https://github.com/getjerry/serverless-es-logs.git"
   },
   "bugs": {
-    "url": "https://github.com/daniel-cottone/serverless-es-logs/issues"
+    "url": "https://github.com/getjerry/serverless-es-logs/issues"
   },
-  "homepage": "https://github.com/daniel-cottone/serverless-es-logs",
+  "homepage": "https://github.com/getjerry/serverless-es-logs",
   "engines": {
     "node": ">=10.0"
   },
