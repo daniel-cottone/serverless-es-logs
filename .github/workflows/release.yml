@@ -14,8 +14,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: yarn --frozen-lockfile
-      - name: Release
-        run: yarn release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          NPM_TOKEN: ${{ secrets.GH_PAT }}
+      - run: npm build
+      - name: Update tag
+        run: |
+          version=$(node -p "require('./package.json').version")
+          git config --global user.email github-actions@getjerry.com
+          git config --global user.name "Github Actions"
+          git add dist
+          git tag -m "Release ${version}" ${version}
+          git push origin ${version}
+
+      # - name: Release
+      #   run: yarn release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      #     NPM_TOKEN: ${{ secrets.GH_PAT }}
