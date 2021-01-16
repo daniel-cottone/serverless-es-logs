@@ -13,13 +13,14 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: yarn --frozen-lockfile
-      - run: npm build
+      - run: npm run compile
       - name: Update tag
         run: |
           version=v$(node -p "require('./package.json').version")
           git config --global user.email github-actions@getjerry.com
           git config --global user.name "Github Actions"
           git add dist
+          git commit -m 'Build release ${version}'
           git tag -m "Release ${version}" ${version}
           git push origin ${version}
 
