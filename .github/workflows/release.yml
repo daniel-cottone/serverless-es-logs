@@ -5,7 +5,6 @@ on:
     branches: [master]
 
 jobs:
-    
   release:
     runs-on: ubuntu-latest
     env:
@@ -17,7 +16,7 @@ jobs:
       - run: npm build
       - name: Update tag
         run: |
-          version=$(node -p "require('./package.json').version")
+          version=v$(node -p "require('./package.json').version")
           git config --global user.email github-actions@getjerry.com
           git config --global user.name "Github Actions"
           git add dist
