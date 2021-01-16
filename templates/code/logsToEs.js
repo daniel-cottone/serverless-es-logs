@@ -132,13 +132,15 @@ function transform(payload) {
 /**
  * Remove array fields from event data to reduce index fields size.
  */
-const clean = (data) => {
+const MaxFieldLevel = 5;
+const clean = (data, level = 0) => {
     for (const key in data) {
-        if (Array.isArray(data[key])) {
-        delete data[key];
-    } else if (typeof data[key] === 'object' && data[key] !== null) {
-        data[key] = clean(data[key]);
-    }
+        // Remove keys from data to prevent field explode
+        if (Array.isArray(data[key]) || level > MaxFieldLevel || /^[^a-z]/i.test(String(key))) {
+            delete data[key];
+        } else if (typeof data[key] === 'object' && data[key] !== null) {
+            data[key] = clean(data[key], level + 1);
+        }
     }
     return data;
 };
