@@ -136,7 +136,7 @@ const MaxFieldLevel = 5;
 const clean = (data, level = 0) => {
     for (const key in data) {
         // Remove keys from data to prevent field explode
-        if (Array.isArray(data[key]) || level > MaxFieldLevel || /^[^a-z]/i.test(String(key))) {
+        if (Array.isArray(data[key]) || level > MaxFieldLevel || /^[^a-z@]/i.test(String(key))) {
             delete data[key];
         } else if (typeof data[key] === 'object' && data[key] !== null) {
             data[key] = clean(data[key], level + 1);
