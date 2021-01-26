@@ -1,6 +1,6 @@
 {
   "name": "@getjerry/serverless-es-logs",
-  "version": "3.4.1-rc1",
+  "version": "3.4.1-rc2",
   "license": "MIT",
   "description": "A Serverless plugin to transport logs to ElasticSearch (Jerry)",
   "author": "Daniel Cottone <daniel.cottone@asurion.com> (https://github.com/daniel-cottone)",

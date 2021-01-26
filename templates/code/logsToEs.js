@@ -140,6 +140,9 @@ const clean = (data, level = 0) => {
             delete data[key];
         } else if (typeof data[key] === 'object' && data[key] !== null) {
             data[key] = clean(data[key], level + 1);
+        } else if (String(key).toLocaleLowerCase().includes('date') && data[key] === ''){
+            // https://stackoverflow.com/questions/15924632/empty-string-in-elasticsearch-date-field
+            data[key] = null
         }
     }
     return data;
