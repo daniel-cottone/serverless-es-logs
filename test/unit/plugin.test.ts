@@ -225,7 +225,6 @@ describe('serverless-es-logs :: Plugin tests', () => {
             Statement: [
               {
                 Action: [
-                  'logs:CreateLogGroup',
                   'logs:CreateLogStream',
                   'logs:PutLogEvents',
                 ],
@@ -238,15 +237,6 @@ describe('serverless-es-logs :: Plugin tests', () => {
                 Resource: {
                   'Fn::Sub': 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*',
                 },
-              },
-              {
-                Action: [
-                  'ec2:CreateNetworkInterface',
-                  'ec2:DescribeNetworkInterfaces',
-                  'ec2:DeleteNetworkInterface',
-                ],
-                Effect: 'Allow',
-                Resource: '*',
               }
             ],
             Version: '2012-10-17',
@@ -265,7 +255,6 @@ describe('serverless-es-logs :: Plugin tests', () => {
             Statement: [
               {
                 Action: [
-                  'logs:CreateLogGroup',
                   'logs:CreateLogStream',
                   'logs:PutLogEvents',
                 ],
@@ -278,15 +267,6 @@ describe('serverless-es-logs :: Plugin tests', () => {
                 Resource: {
                   'Fn::Sub': 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*',
                 },
-              },
-              {
-                Action: [
-                  'ec2:CreateNetworkInterface',
-                  'ec2:DescribeNetworkInterfaces',
-                  'ec2:DeleteNetworkInterface',
-                ],
-                Effect: 'Allow',
-                Resource: '*',
               },
               {
                 Action: [
@@ -306,6 +286,59 @@ describe('serverless-es-logs :: Plugin tests', () => {
         }]);
       });
 
+        it('should append vpc permissions policy to generated role if vpc config provided and no default role specified', () => {
+          const template = serverless.service.provider.compiledCloudFormationTemplate;
+          serverless.service.custom.esLogs.vpc  = {
+            securityGroupIds: ['securityGroup'],
+            subnetIds: ['subnet']
+          };
+          plugin.hooks['aws:package:finalize:mergeCustomProviderResources']();
+          expect(template.Resources).to.have.property('IamRoleLambdaExecution');
+          expect(template.Resources.IamRoleLambdaExecution.Properties.Policies).to.have.deep.members([{
+            PolicyDocument: {
+              Statement: [
+                {
+                  Action: [
+                    'logs:CreateLogStream',
+                    'logs:PutLogEvents',
+                  ],
+                  Effect: 'Allow',
+                  Resource: 'arn:aws:logs:*:*:*',
+                },
+                {
+                  Action: 'es:ESHttpPost',
+                  Effect: 'Allow',
+                  Resource: {
+                    'Fn::Sub': 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*',
+                  },
+                },
+                {
+                  Action: [
+                      "xray:PutTraceSegments",
+                      "xray:PutTelemetryRecords",
+                      "xray:GetSamplingRules",
+                      "xray:GetSamplingTargets",
+                      "xray:GetSamplingStatisticSummaries"
+                  ],
+                  Effect: "Allow",
+                  Resource: "*"
+                },
+                {
+                  Action: [
+                    'ec2:CreateNetworkInterface',
+                    'ec2:DescribeNetworkInterfaces',
+                    'ec2:DeleteNetworkInterface',
+                  ],
+                  Effect: 'Allow',
+                  Resource: '*',
+                }
+              ],
+              Version: '2012-10-17',
+            },
+            PolicyName: 'cw-to-elasticsearch-policy',
+          }]);
+        });
+    
       describe('#addLambdaCloudwatchSubscriptions()', () => {
         it('shouldn\'t add any subscriptions or permissions if there are no functions', () => {
           const template = serverless.service.provider.compiledCloudFormationTemplate;
