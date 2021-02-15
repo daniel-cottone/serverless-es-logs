@@ -77,7 +77,7 @@ class ServerlessEsLogsPlugin {
       statement.push(withXrayTracingPermissions);
     }
 
-        // Add xray permissions if option is enabled
+    // Add vpc permissions if vpc config is provided 
     if (vpc) {
       const statement = iamLambdaTemplate.ServerlessEsLogsLambdaIAMRole.Properties.Policies[0].PolicyDocument.Statement;
       statement.push(withVpcPermissions);
