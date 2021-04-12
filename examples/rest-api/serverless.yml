@@ -12,7 +12,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   logs:
     restApi:
       format: '$context.requestTimeEpoch $context.requestId $context.httpMethod $context.resourcePath $context.status $context.responseLatency'
