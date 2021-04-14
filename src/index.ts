@@ -298,7 +298,7 @@ class ServerlessEsLogsPlugin {
         include: [`${this.logProcesserDir}/**`],
         individually: true,
       },
-      runtime: 'nodejs10.x',
+      runtime: 'nodejs12.x',
       timeout: 60,
       tracing: false,
     };
