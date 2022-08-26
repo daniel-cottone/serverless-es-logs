@@ -185,7 +185,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
           const opts = {
             service: {
               provider: {
-                runtime: 'nodejs14.x'
+                runtime: 'nodejs16.x'
               },
               custom: {
                 esLogs: {
@@ -200,7 +200,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
           serverless = new ServerlessBuilder(opts).build();
           plugin = new ServerlessEsLogsPlugin(serverless, options);
           plugin.hooks['after:package:initialize']();
-          expect(serverless.service.provider.runtime).to.equal('nodejs14.x');
+          expect(serverless.service.provider.runtime).to.equal('nodejs16.x');
         });
 
         it('should use default runtime if service does not specify runtime', () => {
@@ -223,7 +223,7 @@ describe('serverless-es-logs :: Plugin tests', () => {
           serverless = new ServerlessBuilder(opts).build();
           plugin = new ServerlessEsLogsPlugin(serverless, options);
           plugin.hooks['after:package:initialize']();
-          expect(serverless.service.provider.runtime).to.equal('nodejs12.x');
+          expect(serverless.service.provider.runtime).to.equal('nodejs14.x');
         });
 
       });
