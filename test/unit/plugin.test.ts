@@ -176,6 +176,56 @@ describe('serverless-es-logs :: Plugin tests', () => {
           plugin.hooks['after:package:initialize']();
           expect(serverless.service.functions.esLogsProcesser).to.have.deep.property('vpc', vpc);
         });
+
+        it('should use runtime from service if specified', () => {
+          const vpc = {
+            securityGroupIds: ['securityGroup'],
+            subnetIds: ['subnet']
+          };
+          const opts = {
+            service: {
+              provider: {
+                runtime: 'nodejs14.x'
+              },
+              custom: {
+                esLogs: {
+                  endpoint: 'some_endpoint',
+                  index: 'some_index',
+                  vpc
+                },
+              },
+            },
+          };
+          
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          plugin.hooks['after:package:initialize']();
+          expect(serverless.service.provider.runtime).to.equal('nodejs14.x');
+        });
+
+        it('should use default runtime if service does not specify runtime', () => {
+          const vpc = {
+            securityGroupIds: ['securityGroup'],
+            subnetIds: ['subnet']
+          };
+          const opts = {
+            service: {
+              custom: {
+                esLogs: {
+                  endpoint: 'some_endpoint',
+                  index: 'some_index',
+                  vpc
+                },
+              },
+            },
+          };
+          
+          serverless = new ServerlessBuilder(opts).build();
+          plugin = new ServerlessEsLogsPlugin(serverless, options);
+          plugin.hooks['after:package:initialize']();
+          expect(serverless.service.provider.runtime).to.equal('nodejs12.x');
+        });
+
       });
     });
 
