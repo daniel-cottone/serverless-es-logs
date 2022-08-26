@@ -52,7 +52,7 @@ export class ServerlessBuilder {
         },
         name: 'aws',
         region: 'us-east-1',
-        runtime: 'nodejs12.x',
+        runtime: 'nodejs14.x',
         stage: 'dev',
       },
     },
