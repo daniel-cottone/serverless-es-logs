@@ -1,3 +1,12 @@
+## [3.4.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.4.2...v3.4.3) (2022-08-26)
+
+
+### Bug Fixes
+
+* adding workflow dispatch ([760db7c](https://github.com/daniel-cottone/serverless-es-logs/commit/760db7c))
+* Update status check triggers ([2a78c62](https://github.com/daniel-cottone/serverless-es-logs/commit/2a78c62))
+* Upgrade default node version to 14.x ([#536](https://github.com/daniel-cottone/serverless-es-logs/issues/536)) ([da21704](https://github.com/daniel-cottone/serverless-es-logs/commit/da21704))
+
 ## [3.4.2](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.4.1...v3.4.2) (2021-04-14)
 
 
