@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.4.3...v3.5.0) (2022-10-27)
+
+
+### Features
+
+* add reservedConcurrency support ([#538](https://github.com/daniel-cottone/serverless-es-logs/issues/538)) ([a1bb07b](https://github.com/daniel-cottone/serverless-es-logs/commit/a1bb07b))
+
 ## [3.4.3](https://github.com/daniel-cottone/serverless-es-logs/compare/v3.4.2...v3.4.3) (2022-08-26)
 
 
