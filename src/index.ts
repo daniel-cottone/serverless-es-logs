@@ -265,7 +265,7 @@ class ServerlessEsLogsPlugin {
   }
 
   private addLogProcesser(): void {
-    const { index, indexDateSeparator, endpoint, tags, vpc } = this.custom().esLogs;
+    const { index, indexDateSeparator, endpoint, tags, vpc, reservedConcurrency } = this.custom().esLogs;
     const tagsStringified = tags ? JSON.stringify(tags) : /* istanbul ignore next */ '';
     const dirPath = path.join(this.serverless.config.servicePath, this.logProcesserDir);
     const filePath = path.join(dirPath, 'index.js');
@@ -284,6 +284,7 @@ class ServerlessEsLogsPlugin {
       vpc,
       events: [],
       handler,
+      reservedConcurrency,
       memorySize: 512,
       name,
       package: {

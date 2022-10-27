@@ -189,6 +189,19 @@ provider:
   tracing:
     apiGateway: true
 ```
+#### reservedConcurrency
+
+(Optional) Sets the reservedConcurrency of the lambda
+
+```yaml
+custom:
+  esLogs:
+    reservedConcurrency: 3
+
+provider:
+  tracing:
+    apiGateway: true
+```
 
 [sls-image]:http://public.serverless.com/badges/v3.svg
 [sls-url]:http://www.serverless.com
