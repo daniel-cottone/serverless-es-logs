@@ -79,7 +79,7 @@
     "@types/fs-extra": "8.1.1",
     "@types/lodash": "4.14.168",
     "@types/mocha": "8.2.2",
-    "@types/node": "10.17.56",
+    "@types/node": "10.17.60",
     "@types/sinon": "10.0.0",
     "chai": "4.3.4",
     "coveralls": "3.1.0",
