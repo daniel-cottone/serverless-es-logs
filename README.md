@@ -162,7 +162,7 @@ provider:
 
 #### vpc
 
-(Optional) VPC configuration for the log processor lambda to have.
+(Optional) VPC configuration for the log processor lambda to have. VPC permission will be automatically added to role. if you used useDefaultRole option then your role should include EC2 Network permissions.
 
 ```yaml
 custom:
